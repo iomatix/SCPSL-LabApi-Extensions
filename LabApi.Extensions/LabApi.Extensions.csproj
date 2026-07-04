@@ -7,7 +7,7 @@
 		<LangVersion>9.0</LangVersion>
 
 		<PackageId>LabApi.Extensions</PackageId>
-		<Version>0.9.0</Version>
+		<Version>0.9.1</Version>
 		<Authors>iomatix</Authors>
 		<Company>iomatix</Company>
 		<Description>Source-only shared extensions for SCP:SL LabAPI plugins.</Description>
@@ -27,7 +27,7 @@
 	</ItemGroup>	
 	
 	<ItemGroup>
-		<Content Include="**\*.cs" Pack="true" PackagePath="contentFiles\cs\any" BuildAction="Compile" />
+		<Content Include="**\*.cs" Pack="true" PackagePath="contentFiles\cs\any" BuildAction="Compile" Visible="false"/>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">

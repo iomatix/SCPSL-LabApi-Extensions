@@ -11,12 +11,29 @@ namespace LabApi.Extensions
     /// Provides an enterprise-grade decoupled management matrix controlling speech synthesizer payloads, 
     /// real-time custom subtitle distribution pipelines, and multi-track duration timeline aggregation.
     /// </summary>
-    internal static class CassieExtensions
+    public static class CassieExtensions
     {
         /// <summary>
         /// Flushes the current real-time vocal audio broadcast queue entirely, instantly suspending any ongoing audio playback.
         /// </summary>
         public static void CassieClear() => Announcer.Clear();
+
+        /// <summary>
+        /// Systematically scrubs raw text fields, stripping hidden carriage returns and formatting errors 
+        /// while safely preserving empty strings for intentional text muting configurations.
+        /// </summary>
+        /// <param name="rawMessage">The raw, un-sanitized source configuration string text layout.</param>
+        /// <returns>A fully sanitized, single-line phonetic string ready for speech synthesis engines.</returns>
+        public static string SanitizeCassieString(this string rawMessage)
+        {
+            if (string.IsNullOrWhiteSpace(rawMessage))
+            {
+                return string.Empty;
+            }
+
+            // Clears hidden YAML formatting characters (\r\n) to safeguard native speech synthesis processors against thread choking artifacts
+            return rawMessage.Replace("\r", "").Replace("\n", " ").Trim();
+        }
 
         /// <summary>
         /// Dispatches an intentionally modulated, corrupted vocal sequence across the global audio matrix, 
@@ -29,17 +46,19 @@ namespace LabApi.Extensions
         /// <returns>The precise runtime track width duration metric measured in fractional seconds; otherwise, 0.0 on execution failure.</returns>
         public static double Cassie_GlitchyMessage(string message, float glitchChance, float jamChance, string glitchifierOutput)
         {
-            if (string.IsNullOrWhiteSpace(message)) return 0.0;
+            // DRY Upgrade: Cleanse the internal glitch output parameter before pushing onto the audio pipeline context
+            string sanitizedOutput = glitchifierOutput.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedOutput)) return 0.0;
 
             try
             {
                 CassiePlaybackModifiers playbackModifiers = default;
                 playbackModifiers.Pitch = 0.95f;
 
-                string finalPayload = $"pitch_0.95 {glitchifierOutput}";
+                string finalPayload = $"pitch_0.95 {sanitizedOutput}";
                 Announcer.Message(finalPayload, string.Empty, playBackground: false);
 
-                return Announcer.CalculateDuration(glitchifierOutput, playbackModifiers);
+                return Announcer.CalculateDuration(sanitizedOutput, playbackModifiers);
             }
             catch (Exception ex)
             {
@@ -55,17 +74,19 @@ namespace LabApi.Extensions
         /// <returns>The computed execution track timeline width evaluated in seconds; otherwise, 0.0 if an anomaly is intercepted.</returns>
         public static double Cassie_Message(string message)
         {
-            if (string.IsNullOrWhiteSpace(message)) return 0.0;
+            // DRY Upgrade: Enforce clean, format-safe strings right at the threshold of public audio broadcasts
+            string sanitizedMessage = message.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedMessage)) return 0.0;
 
             try
             {
                 CassiePlaybackModifiers playbackModifiers = default;
                 playbackModifiers.Pitch = 1.05f;
 
-                string finalPayload = $"pitch_1.05 {message}";
+                string finalPayload = $"pitch_1.05 {sanitizedMessage}";
                 Announcer.Message(finalPayload, string.Empty, playBackground: false);
 
-                return Announcer.CalculateDuration(message, playbackModifiers);
+                return Announcer.CalculateDuration(sanitizedMessage, playbackModifiers);
             }
             catch (Exception ex)
             {
@@ -86,11 +107,17 @@ namespace LabApi.Extensions
         /// <param name="disableMessages">Defensive toggle bypass to suppress contextual subtitle generation arrays if evaluation bounds are met.</param>
         public static void ProcessAndDispatchMessage(string message, string customSubtitles, bool shouldClear, string pitchModifier, float priority, bool disableMessages = false)
         {
-            if (string.IsNullOrEmpty(message)) return;
+            // DRY Upgrade: Intercept both transmission payload tracks and cleanse them simultaneously natively
+            string sanitizedMessage = message.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedMessage)) return;
+
             if (shouldClear) Announcer.Clear();
 
-            string processedSubtitles = (!string.IsNullOrEmpty(customSubtitles) && !disableMessages) ? customSubtitles : string.Empty;
-            string fullMessage = $"{pitchModifier} {message}";
+            string sanitizedSubtitles = customSubtitles.SanitizeCassieString();
+            string processedSubtitles = (!string.IsNullOrEmpty(sanitizedSubtitles) && !disableMessages) ? sanitizedSubtitles : string.Empty;
+            string cleanPitch = string.IsNullOrWhiteSpace(pitchModifier) ? "pitch_1.0" : pitchModifier.Trim();
+
+            string fullMessage = $"{cleanPitch} {sanitizedMessage}";
 
             Announcer.Message(fullMessage, customSubtitles: processedSubtitles, priority: priority, playBackground: false);
         }
@@ -104,9 +131,13 @@ namespace LabApi.Extensions
         /// <returns>A fully synchronized, ready-to-broadcast phonetic CASSIE phrase format configuration string.</returns>
         public static string ToCassieCountdown(this int notifyTime, string alertContext = "Seconds until Event Detonation")
         {
+            // DRY Upgrade: Sanitize contextual extensions inputs to protect generation maps natively
+            string sanitizedContext = alertContext.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedContext)) sanitizedContext = "Seconds";
+
             if (notifyTime < 5) return $".G3 {notifyTime} .G5";
             if (notifyTime >= 5 && notifyTime <= 20) return $".G3 {notifyTime} Seconds .G5";
-            return $".G3 {notifyTime} {alertContext} .G5";
+            return $".G3 {notifyTime} {sanitizedContext} .G5";
         }
 
         /// <summary>
@@ -118,11 +149,16 @@ namespace LabApi.Extensions
         /// <returns>A precise double floating-point scalar evaluation reflecting the calculated operational track length in seconds.</returns>
         public static double CalculateCassieMessageDuration(string message, double speed = 0.95)
         {
+            // DRY Upgrade: Guarantee underlying timing trackers process clean metrics free of formatting noise
+            string sanitizedMessage = message.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedMessage)) return 0.0;
+
             CassiePlaybackModifiers modifiers = default;
             modifiers.Pitch = (float)speed;
-            return Announcer.CalculateDuration(message, modifiers);
+            return Announcer.CalculateDuration(sanitizedMessage, modifiers);
         }
 
+        #region Aggregation Overhead Loops
         /// <summary>
         /// Iteratively aggregates and computes the total unified summation timeline bounds for a collection layout dictionary 
         /// mapping asynchronous text phrases to explicit local frequency speed bounds.
@@ -155,7 +191,9 @@ namespace LabApi.Extensions
         /// <returns>The aggregated total timeline calculation output track tracking all parameters.</returns>
         public static double CalculateTotalMessagesDurations(float defaultSpeed = 1f, params string[] messages)
         {
+            // Explicit array conversion redirection to avoid allocations inside iteration structures
             return CalculateTotalMessagesDurations((IEnumerable<string>)messages, defaultSpeed);
         }
+        #endregion
     }
 }

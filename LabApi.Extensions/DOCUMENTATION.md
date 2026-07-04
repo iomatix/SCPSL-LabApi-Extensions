@@ -1,5 +1,15 @@
 # Audio Manager API - Architecture API Registry
 
+## 📦 Class: AssemblyExtensions
+
+### 🔹 `FindEmbeddedAsset()`
+**Description:** Dynamically resolves an embedded manifest resource pathway matching primary identifiers or structural fallback names.
+```csharp
+public static string FindEmbeddedAsset(this Assembly assembly, string primaryKey, string fileExtension = ".wav", params string[] alternativeTokens)
+```
+
+---
+
 ## 📦 Class: CassieExtensions
 
 ### 🔹 `CassieClear()`

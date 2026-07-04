@@ -24,10 +24,15 @@
 		<None Include="..\README.md" Pack="true" PackagePath="\" />
 		<None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
 		<None Include="DOCUMENTATION.md" Pack="true" PackagePath="\" />
-	</ItemGroup>	
-	
+	</ItemGroup>
+
 	<ItemGroup>
-		<Content Include="**\*.cs" Pack="true" PackagePath="contentFiles\cs\any" BuildAction="Compile" Visible="false"/>
+		<Content Include="**\*.cs"
+				 Exclude="bin\**;obj\**;Properties\**"
+				 Pack="true"
+				 PackagePath="contentFiles\cs\any"
+				 BuildAction="Compile"
+				 Visible="false" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">

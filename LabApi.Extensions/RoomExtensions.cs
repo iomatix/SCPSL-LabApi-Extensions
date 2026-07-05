@@ -14,13 +14,34 @@ namespace LabApi.Extensions
     /// </summary>
     internal static class RoomExtensions
     {
+        #region Adjacency & Neighbor Routing (DRY Engine)
+        /// <summary>
+        /// Resolves and collects all valid physically adjacent neighboring <see cref="Room"/> nodes connected directly to this room instance.
+        /// </summary>
+        /// <param name="room">The source room anchor node initiating the topology adjacency query.</param>
+        /// <returns>An enumerable collection of valid neighboring initialized <see cref="Room"/> instances.</returns>
+        public static IEnumerable<Room> GetNeighbors(this Room room)
+        {
+            if (room?.ConnectedRooms is null) yield break;
+
+            // FIXED: HashSet requires foreach evaluation as it does not natively expose an indexer tracker property
+            foreach (var roomIdentifier in room.ConnectedRooms)
+            {
+                var neighborRoom = Room.Get(roomIdentifier);
+                if (neighborRoom is not null)
+                {
+                    yield return neighborRoom;
+                }
+            }
+        }
+        #endregion
 
         #region Collection Query Extensions
         /// <summary>
         /// Filters an enumerable collection stream of rooms to insulate the pipeline against sectors 
         /// representing the unstable spatial bounds of SCP-106's Pocket Dimension.
         /// </summary>
-        /// <param name="rooms">The source collection of room architectural sectors undergo dimension audit.</param>
+        /// <param name="rooms">The source collection of room architectural sectors undergoing dimension audit.</param>
         /// <returns>A filtered enumerable sequence layout containing rooms outside the pocket dimension zone.</returns>
         public static IEnumerable<Room> WhereNotInPocket(this IEnumerable<Room> rooms)
         {
@@ -74,7 +95,6 @@ namespace LabApi.Extensions
         /// <returns><c>true</c> if the zone signature represents a facility armory vault; otherwise, <c>false</c>.</returns>
         public static bool IsArmory(this RoomName roomName) =>
             roomName is RoomName.LczArmory or RoomName.HczArmory;
-
         #endregion
 
         #region Spatial Validation
@@ -102,10 +122,9 @@ namespace LabApi.Extensions
             if (room == null) return false;
             if (!room.IsFreeOfEngagedGenerators()) return false;
 
-            foreach (var neighborIdentifier in room.ConnectedRooms)
+            foreach (Room neighborRoom in room.GetNeighbors())
             {
-                var neighborRoom = Room.Get(neighborIdentifier);
-                if (neighborRoom != null && !neighborRoom.IsFreeOfEngagedGenerators())
+                if (!neighborRoom.IsFreeOfEngagedGenerators())
                     return false;
             }
             return true;
@@ -120,9 +139,9 @@ namespace LabApi.Extensions
         /// <param name="room">The target <see cref="Room"/> spatial context where the environmental illumination override is executed.</param>
         /// <param name="duration">The execution lifespan timeframe measured in seconds during which the light suppression grid remains active.</param>
         /// <param name="elevatorAffectChance">The fractional probability value constraint percentage checked prior to executing elevator bulkhead passage suppression.</param>
-        public static void TurnOffRoomLights(this Room room, float duration, float elevatorAffectChance = 0f)
+        public static void TurnOffLights(this Room room, float duration, float elevatorAffectChance = 0f)
         {
-            if (room == null) return;
+            if (room?.AllLightControllers == null) return;
 
             foreach (var controller in room.AllLightControllers)
             {
@@ -133,10 +152,64 @@ namespace LabApi.Extensions
             {
                 elevator.LockAllDoors();
 
-                // FIXED: Assigned a context-compliant structural tracking tag matching the elevator domain instead of the leaked audio reference.
                 var coroutine = Timing.CallDelayed(duration, () => elevator.UnlockAllDoors());
                 coroutine.Tag = "LabApiExtensions-ElevatorUnlock";
             });
+        }
+
+        /// <summary>
+        /// Fluent API DRY Refactor: Restores electrical power to the room's lighting grid controllers and optionally triggers a brief flicker sequence.
+        /// </summary>
+        /// <param name="room">The target room architecture instance undergoing illumination restoration.</param>
+        /// <param name="flickerDuration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
+        public static void TurnOnLights(this Room room, float flickerDuration = 0f)
+        {
+            if (room?.AllLightControllers is null) return;
+
+            foreach (var controller in room.AllLightControllers)
+            {
+                controller.LightsEnabled = true;
+                if (flickerDuration > 0f)
+                {
+                    controller.FlickerLights(flickerDuration);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Forcibly suppresses illumination across this room and all physically connected adjacent neighboring rooms simultaneously for a designated duration track.
+        /// </summary>
+        /// <param name="room">The root room anchor node executing the multi-sector blackout cascade.</param>
+        /// <param name="duration">The operational execution lifespan measured in seconds during which the light grids stay unpowered.</param>
+        /// <param name="elevatorAffectChance">The fractional probability value constraint checked prior to locking adjacent elevator pathway doors.</param>
+        /// <param name="forced">A defensive safety toggle bypass flag to force processing overrides regardless of structural sub-states.</param>
+        public static void TurnOffRoomAndNeighborLights(this Room room, float duration, float elevatorAffectChance = 0f, bool forced = false)
+        {
+            if (room is null) return;
+
+            room.TurnOffLights(duration, elevatorAffectChance);
+
+            foreach (Room neighbor in room.GetNeighbors())
+            {
+                neighbor.TurnOffLights(duration, elevatorAffectChance);
+            }
+        }
+
+        /// <summary>
+        /// Restores active electrical power and forces an optional brief flickering update sequence across this room and all adjacent neighbors.
+        /// </summary>
+        /// <param name="room">The root room anchor node executing the cluster grid illumination restoration.</param>
+        /// <param name="duration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
+        public static void TurnOnRoomAndNeighborLights(this Room room, float duration = 0f)
+        {
+            if (room is null) return;
+
+            // DRY Upgrade: Eradicated local action delegate in favor of the newly exposed TurnOnRoomLights primitive extension
+            room.TurnOnLights(duration);
+            foreach (Room neighbor in room.GetNeighbors())
+            {
+                neighbor.TurnOnLights(duration);
+            }
         }
 
         /// <summary>
@@ -171,6 +244,7 @@ namespace LabApi.Extensions
         }
         #endregion
 
+        #region Delegate Cascade Propagation
         /// <summary>
         /// Executes a specified procedural action delegate graph across a localized room anchor point 
         /// and seamlessly propagates the delegate pattern execution out into all adjacent physical room nodes safely.
@@ -180,11 +254,12 @@ namespace LabApi.Extensions
         public static void ExecuteActionOnRoomAndNeighbors(this Room room, Action<Room> action)
         {
             if (room == null || action == null) return;
+
             action(room);
-            foreach (var neighborIdentifier in room.ConnectedRooms)
+
+            foreach (Room neighborRoom in room.GetNeighbors())
             {
-                var neighborRoom = Room.Get(neighborIdentifier);
-                if (neighborRoom != null) action(neighborRoom);
+                action(neighborRoom);
             }
         }
 
@@ -208,6 +283,7 @@ namespace LabApi.Extensions
                 }
             }
         }
+        #endregion
 
         #region Vector Spatial Intersections
         /// <summary>
@@ -239,7 +315,7 @@ namespace LabApi.Extensions
         }
 
         /// <summary>
-        /// Performs a high-performance proximity validation query tracking from the room's transform center center point 
+        /// Performs a high-performance proximity validation query tracking from the room's transform center point 
         /// utilizing underlying Unity vector squaring math (<c>sqrMagnitude</c>) to avoid high overhead calculation paths.
         /// </summary>
         /// <param name="room">The source <see cref="Room"/> instance serving as the origin coordinate spatial anchor.</param>

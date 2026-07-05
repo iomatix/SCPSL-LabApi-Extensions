@@ -276,28 +276,28 @@ public static void HandleElevatorsForRoom(this Room room, float affectChance, fl
 
 ## 📦 Class: ElevatorLightingExtensions
 
-### 🔹 `AreLightsOff()`
-**Description:** Verified Boolean Query: Determines with zero heap allocations whether an elevator instance is undergoing active power suppression.
-```csharp
-public static bool AreLightsOff(this Elevator elevator)
-```
-
 ### 🔹 `TurnOffLights()`
-**Description:** Forcibly suppresses all illumination and mesh rendering emission vectors inside the elevator cabin for a specific duration.
+**Description:** PLACEHOLDER: Current implementation relies on internal ElevatorChamber illumination state. Due to engine-level render pipeline constraints, automated blackout suppression is currently deferred.
 ```csharp
 public static void TurnOffLights(this Elevator elevator, float duration)
 ```
 
 ### 🔹 `TurnOnLights()`
-**Description:** Restores standard electrical power and re-activates all internal mesh illumination parameters inside the elevator cabin.
+**Description:** PLACEHOLDER: Restoration logic is currently idle; elevator illumination state remains persistent.
 ```csharp
 public static void TurnOnLights(this Elevator elevator)
 ```
 
 ### 🔹 `FlickerElevatorLightsCoroutine()`
-**Description:** Fluently executes a synchronized asynchronous lighting flicker animation loop over an individual elevator cabin space.
+**Description:** PLACEHOLDER: Synchronized visual flicker animation loop is currently inactive pending component access.
 ```csharp
 public static IEnumerator<float> FlickerElevatorLightsCoroutine(this Elevator elevator, float duration, float frequency)
+```
+
+### 🔹 `AreLightsOff()`
+**Description:** Verified Boolean Query: Elevator cabins are currently treated as SafeZones where lights are constant.
+```csharp
+public static bool AreLightsOff(this Elevator elevator) => false;
 ```
 
 ---

@@ -464,6 +464,60 @@ public static int LimitMin(this int value, int minBaseline) => Mathf.Max(minBase
 public static double LimitMin(this double value, double minBaseline) => value < minBaseline ? minBaseline : value;
 ```
 
+### 🔹 `Abs()`
+**Description:** Fluently resolves the absolute magnitude of a single-precision floating-point sample coefficient.
+```csharp
+public static float Abs(this float value) => Mathf.Abs(value);
+```
+
+### 🔹 `Abs()`
+**Description:** Fluently resolves the absolute magnitude of a double-precision floating-point coefficient.
+```csharp
+public static double Abs(this double value) => Math.Abs(value);
+```
+
+### 🔹 `Sign()`
+**Description:** Returns an integer indicating the sign (+1, 0, or -1) of the single-precision floating-point value.
+```csharp
+public static float Sign(this float value) => value is 0f ? 0f : (value > 0f ? 1f : -1f);
+```
+
+### 🔹 `Lerp()`
+**Description:** Performs a high-performance fluent linear interpolation between two float boundaries.
+```csharp
+public static float Lerp(this float from, float to, float t) => Mathf.Lerp(from, to, t);
+```
+
+### 🔹 `LerpUnclamped()`
+**Description:** Performs an un-clamped linear interpolation, vital for extreme out-of-bounds modular sound transformation tracks.
+```csharp
+public static float LerpUnclamped(this float from, float to, float t) => Mathf.LerpUnclamped(from, to, t);
+```
+
+### 🔹 `Floor()`
+**Description:** Fluently truncates a single-precision floating-point value down to the nearest mathematical integer step boundary.
+```csharp
+public static float Floor(this float value) => Mathf.Floor(value);
+```
+
+### 🔹 `Ceil()`
+**Description:** Fluently truncates a single-precision floating-point value up to the nearest mathematical integer step boundary.
+```csharp
+public static float Ceil(this float value) => Mathf.Ceil(value);
+```
+
+### 🔹 `DbToLinear()`
+**Description:** Converts a raw logarithmic decibel amplitude value (-96dB..0dB) safely into a float-native linear coefficient scalar (0.0f..1.0f).
+```csharp
+public static float DbToLinear(this float db) => db <= -96f ? 0f : Mathf.Pow(10f, db / 20f);
+```
+
+### 🔹 `LinearToDb()`
+**Description:** Converts a float-native linear coefficient scalar safely into a raw logarithmic decibel amplitude value.
+```csharp
+public static float LinearToDb(this float linear) => linear <= 0.00001f ? -96f : 20f * Mathf.Log10(linear);
+```
+
 ### 🔹 `IsNanOrInfinity()`
 **Description:** Verifies whether the specified single-precision floating-point value evaluates to NaN or Infinity.
 ```csharp

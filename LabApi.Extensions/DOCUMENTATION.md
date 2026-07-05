@@ -818,22 +818,64 @@ public static UnityEngine.Vector3 Sanitize(this UnityEngine.Vector3 vector, Unit
 
 ## 📦 Class: ZoneExtensions
 
-### 🔹 `TurnOffZoneLights()`
+### 🔹 `UnknownMember()`
+**Description:** Cached array containing all valid facility zone tokens to eliminate runtime enum allocation overhead.
+```csharp
+public static readonly FacilityZone[] All = (FacilityZone[])Enum.GetValues(typeof(FacilityZone));
+```
+
+### 🔹 `GetDoors()`
+**Description:** Resolves and aggregates all <see cref="Door"/> instances deployed within the specified facility zone boundary.
+```csharp
+public static IEnumerable<Door> GetDoors(this FacilityZone zone)
+```
+
+### 🔹 `OpenDoors()`
+**Description:** Forcibly unseals all doors located within the targeted facility zone boundary.
+```csharp
+public static void OpenDoors(this FacilityZone zone, bool bypassLocks = false)
+```
+
+### 🔹 `CloseDoors()`
+**Description:** Forcibly seals all doors located within the targeted facility zone boundary.
+```csharp
+public static void CloseDoors(this FacilityZone zone, bool bypassLocks = false)
+```
+
+### 🔹 `SetDoorsLockState()`
+**Description:** Updates the administrative lock state for all doors across an entire facility zone under a specific lock reason.
+```csharp
+public static void SetDoorsLockState(this FacilityZone zone, DoorLockReason reason, bool locked = true)
+```
+
+### 🔹 `TurnOffLights()`
 **Description:** Forcibly suppresses all layout light controllers and connected elevator cabins across an entire facility zone for a designated duration.
 ```csharp
-public static void TurnOffZoneLights(this FacilityZone zone, float duration)
+public static void TurnOffLights(this FacilityZone zone, float duration)
 ```
 
-### 🔹 `TurnOnZoneLights()`
+### 🔹 `TurnOnLights()`
 **Description:** Instantly restores electrical power to all light controllers and connected elevator cabins across a specific facility zone.
 ```csharp
-public static void TurnOnZoneLights(this FacilityZone zone)
+public static void TurnOnLights(this FacilityZone zone)
 ```
 
-### 🔹 `FlickerZoneLightsCoroutine()`
+### 🔹 `TurnOffLights()`
+**Description:** Forcibly suppresses illumination across a collection sequence of facility zones simultaneously.
+```csharp
+public static void TurnOffLights(this IEnumerable<FacilityZone> zones, float duration)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Instantly restores operational grid power parameters across an entire collection sequence of facility zones.
+```csharp
+public static void TurnOnLights(this IEnumerable<FacilityZone> zones)
+```
+
+### 🔹 `FlickerLightsCoroutine()`
 **Description:** Fluently executes a batch synchronized visual lighting flicker animation sequence across a concrete <see cref="FacilityZone"/>.
 ```csharp
-public static IEnumerator<float> FlickerZoneLightsCoroutine(this FacilityZone targetZone, Color color, float duration, float frequency)
+public static IEnumerator<float> FlickerLightsCoroutine(this FacilityZone targetZone, Color color, float duration, float frequency)
 ```
 
 ---

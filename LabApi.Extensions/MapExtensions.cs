@@ -6,7 +6,7 @@ namespace LabApi.Extensions
     /// Provides global enterprise-grade abstraction layers for macro infrastructure mutation, 
     /// facility-wide door structural degradation, and centralized lighting grid overrides.
     /// </summary>
-    internal static class MapExtensions
+    public static class MapExtensions
     {
         /// <summary>
         /// Performs a comprehensive, high-performance iteration sweep across all active rooms to forcibly 

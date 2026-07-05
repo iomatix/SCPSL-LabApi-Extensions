@@ -9,7 +9,7 @@ namespace LabApi.Extensions.Escape
     /// Provides a highly optimized, decoupled asynchronous execution matrix designed to orchestrate 
     /// multi-stage <see cref="EscapeScenario"/> lifecycles using standardized MEC coroutine tokens.
     /// </summary>
-    internal static class EscapeEngine
+    public static class EscapeEngine
     {
         /// <summary>
         /// Runs a comprehensive, non-blocking asynchronous evacuation routine driven entirely by the provided scenario parameters matrix.

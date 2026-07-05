@@ -35,7 +35,7 @@ namespace LabApi.Extensions
     /// Provides high-performance execution routing layers to dynamically activate status effects 
     /// via runtime enum tokens, bypassing strict compile-time generic constraints.
     /// </summary>
-    internal static class EffectExtensions
+    public static class EffectExtensions
     {
         /// <summary>
         /// Forcibly activates a native facility status effect onto the targeted player instance via its runtime enum identifier.

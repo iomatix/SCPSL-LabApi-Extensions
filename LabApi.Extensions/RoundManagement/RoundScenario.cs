@@ -6,7 +6,7 @@ namespace LabApi.Extensions.RoundManagement
     /// Provides an abstract architectural template for defining custom server-side round ending sequences, 
     /// gamemode transitions, or cataclysmic map lifecycle events.
     /// </summary>
-    internal abstract class RoundScenario
+    public abstract class RoundScenario
     {
         protected readonly RoundController Controller;
 

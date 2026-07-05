@@ -5,7 +5,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance string manipulation and network identity normalization layers.
     /// </summary>
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         /// <summary>
         /// Enforces standard lowercase invariant formatting on a raw network identifier token,

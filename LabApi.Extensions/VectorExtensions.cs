@@ -5,7 +5,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance structural spatial geometry and vector math abstraction overloads.
     /// </summary>
-    internal static class VectorExtensions
+    public static class VectorExtensions
     {
         /// <summary>
         /// Computes the exact linear Euclidean distance between the source vector and a targeted coordinate position.

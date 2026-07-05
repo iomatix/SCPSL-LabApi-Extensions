@@ -9,7 +9,7 @@ namespace LabApi.Extensions
     /// Provides enterprise-grade extension methods for <see cref="Door"/> wrappers, 
     /// optimizing real-time state mutations and native Unity component reflection lookup heuristics.
     /// </summary>
-    internal static class DoorExtensions
+    public static class DoorExtensions
     {
         /// <summary>
         /// Evaluates the underlying structural state of the specified door entity to determine if it is currently unsealed.

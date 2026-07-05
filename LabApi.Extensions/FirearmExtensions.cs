@@ -6,7 +6,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance fluent utility extensions for validating firearm equipment properties and tactical component arrays.
     /// </summary>
-    internal static class FirearmExtensions
+    public static class FirearmExtensions
     {
         /// <summary>
         /// Evaluates defensively whether the specified firearm instance contains an active attachment matching a designated blueprint identity token.

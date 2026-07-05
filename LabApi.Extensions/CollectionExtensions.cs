@@ -6,7 +6,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance fluent utility extensions for advanced collection mappings and dictionary state engines.
     /// </summary>
-    internal static class CollectionExtensions
+    public static class CollectionExtensions
     {
         /// <summary>
         /// Evaluates a temporal cooldown window for a specific key profile. 

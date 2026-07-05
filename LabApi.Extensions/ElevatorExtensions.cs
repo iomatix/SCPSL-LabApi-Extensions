@@ -11,7 +11,7 @@ namespace LabApi.Extensions
     /// Provides enterprise-grade abstraction query layers, real-time spatial lookup matrices, 
     /// and automated locking hooks for server-side <see cref="Elevator"/> components.
     /// </summary>
-    internal static class ElevatorExtensions
+    public static class ElevatorExtensions
     {
         #region Active Floor Operations (Safe State Mutators)
         /// <summary>

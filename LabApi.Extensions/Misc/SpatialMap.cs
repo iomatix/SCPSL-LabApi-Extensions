@@ -7,7 +7,7 @@ namespace LabApi.Extensions.Misc
     /// Provides enterprise-grade global spatial lookup queries, entity resolution matrices, 
     /// and high-performance native factory wrappers for active game world tracking objects.
     /// </summary>
-    internal static class SpatialMap
+    public static class SpatialMap
     {
         /// <summary>
         /// Retrieves a pseudo-randomly selected <see cref="Elevator"/> instance from the active global facility map registry.

@@ -13,7 +13,7 @@ namespace LabApi.Extensions
     /// Provides extension methods for <see cref="FacilityZone"/> structures,
     /// enabling zone-wide illumination overrides, strobe animations, and bulk door operations.
     /// </summary>
-    internal static class ZoneExtensions
+    public static class ZoneExtensions
     {
         #region Cached Zone Registry
         /// <summary>

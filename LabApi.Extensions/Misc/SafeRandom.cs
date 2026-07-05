@@ -7,7 +7,7 @@ namespace LabApi.Extensions.Misc
     /// Utilizes <see cref="ThreadStaticAttribute"/> isolation to guarantee absolute thread-safety and eliminate 
     /// concurrency lock contention across asynchronous server coroutines and parallel execution threads.
     /// </summary>
-    internal static class SafeRandom
+    public static class SafeRandom
     {
         [ThreadStatic]
         private static Random _localRandom;

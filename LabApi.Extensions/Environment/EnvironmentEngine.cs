@@ -8,7 +8,7 @@ namespace LabApi.Extensions.Environment
     /// Provides standalone, high-performance asynchronous orchestration engines designed to manipulate 
     /// global environmental states, structural alarms, and multi-stage facility strobe light sequences.
     /// </summary>
-    internal static class EnvironmentEngine
+    public static class EnvironmentEngine
     {
         /// <summary>
         /// Launches a non-blocking background asynchronous coroutine loop that flashes the global facility lighting grid 

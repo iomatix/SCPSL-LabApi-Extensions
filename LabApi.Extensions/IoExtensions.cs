@@ -8,7 +8,7 @@ namespace LabApi.Extensions
     /// Provides high-performance fluent utility extensions for filesystem interactions, 
     /// directory migrations, and OS-level platform attribute audits.
     /// </summary>
-    internal static class IoExtensions
+    public static class IoExtensions
     {
         /// <summary>
         /// Evaluates defensively whether the targeted path configuration behaves structurally 

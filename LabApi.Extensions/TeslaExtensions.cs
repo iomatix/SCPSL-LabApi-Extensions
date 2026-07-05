@@ -6,7 +6,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance utility abstraction layers for manipulating Tesla gate components across the facility floor topology map.
     /// </summary>
-    internal static class TeslaExtensions
+    public static class TeslaExtensions
     {
         /// <summary>
         /// Forcibly puts a specific Tesla gate into an inactive operational cooldown state for a designated time window.

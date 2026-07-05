@@ -7,7 +7,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance utility extensions for CommandSystem routing, permission gates, and array segment parsing layouts.
     /// </summary>
-    internal static class CommandExtensions
+    public static class CommandExtensions
     {
         /// <summary>
         /// Defensively verifies if the command sender possesses the required administrative permission tracking profile.

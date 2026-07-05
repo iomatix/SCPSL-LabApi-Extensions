@@ -8,7 +8,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides advanced high-performance utility extensions for LabAPI plugin lifecycle and modular sub-configuration deployment.
     /// </summary>
-    internal static class PluginConfigExtensions
+    public static class PluginConfigExtensions
     {
         /// <summary>
         /// Atomically loads a decentralized sub-configuration file from the filesystem. 

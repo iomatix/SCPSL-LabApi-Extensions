@@ -12,7 +12,7 @@ namespace LabApi.Extensions
     /// Provides enterprise-grade extension methods for <see cref="Room"/> and <see cref="RoomName"/> structures,
     /// enabling high-performance map routing lookup, safe generator state validation, and environmental grid illumination overrides.
     /// </summary>
-    internal static class RoomExtensions
+    public static class RoomExtensions
     {
         #region Adjacency & Neighbor Routing (DRY Engine)
         /// <summary>

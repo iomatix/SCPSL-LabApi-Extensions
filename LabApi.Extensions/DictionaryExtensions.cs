@@ -5,7 +5,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides structural extensions for high-performance data deconstruction.
     /// </summary>
-    internal static class DictionaryExtensions
+    public static class DictionaryExtensions
     {
         /// <summary>
         /// Deconstructs a key-value pair into separate architectural components (C# 9.0 Pattern Matcher support).

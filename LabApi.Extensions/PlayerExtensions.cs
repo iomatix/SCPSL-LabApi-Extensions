@@ -14,7 +14,7 @@ namespace LabApi.Extensions
     /// Provides enterprise-grade global broadcast grid interfaces, real-time spatial proximity evaluation tracking, 
     /// and telemetry notification distribution adapters for server-side <see cref="Player"/> collections.
     /// </summary>
-    internal static class PlayerExtensions
+    public static class PlayerExtensions
     {
         #region Tracking
         /// <summary>

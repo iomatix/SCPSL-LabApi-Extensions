@@ -8,7 +8,7 @@ namespace LabApi.Extensions
     /// Provides advanced high-performance utility abstraction layers and shortcut overloads 
     /// for the Movement Evacuation Coroutines (MEC) execution pipeline.
     /// </summary>
-    internal static class TimingExtensions
+    public static class TimingExtensions
     {
         #region Independent Sub-System Delayed Spawners
 

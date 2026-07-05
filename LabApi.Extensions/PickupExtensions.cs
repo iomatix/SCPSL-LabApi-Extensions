@@ -8,7 +8,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance utility abstraction layers for managing dynamic items and active world-space pickup assets.
     /// </summary>
-    internal static class PickupExtensions
+    public static class PickupExtensions
     {
         /// <summary>
         /// Forcibly applies kinetic physical propulsion forces onto a single world-space pickup asset.

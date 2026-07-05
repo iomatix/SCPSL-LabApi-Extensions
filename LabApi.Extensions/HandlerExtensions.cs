@@ -5,7 +5,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Provides high-performance utility abstraction overloads for batch manipulating LabAPI event subscription pipelines.
     /// </summary>
-    internal static class HandlerExtensions
+    public static class HandlerExtensions
     {
         /// <summary>
         /// Systematically registers an aggregated inline array sequence of event handlers onto the central framework routing engine.

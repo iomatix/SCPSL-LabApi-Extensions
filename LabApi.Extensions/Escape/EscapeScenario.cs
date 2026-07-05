@@ -8,7 +8,7 @@ namespace LabApi.Extensions.Escape
     /// Represents a generalized, highly configurable architectural template for spatial evacuation, 
     /// teleportation sequences, and timed server-side gameplay progression scenarios.
     /// </summary>
-    internal class EscapeScenario
+    public class EscapeScenario
     {
         #region Core Identification
         /// <summary>

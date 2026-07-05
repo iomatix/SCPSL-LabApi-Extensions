@@ -7,7 +7,7 @@ namespace LabApi.Extensions
     /// Provides enterprise-grade extension methods for <see cref="Enum"/> structures,
     /// enabling optimized string serialization, defensive layout parsing, and thread-isolated random state generation.
     /// </summary>
-    internal static class EnumExtensions
+    public static class EnumExtensions
     {
         /// <summary>
         /// Automatically transforms an execution enum field token into a standardized lowercase string key identifier.

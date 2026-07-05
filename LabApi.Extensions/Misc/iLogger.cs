@@ -7,7 +7,7 @@ namespace LabApi.Extensions.Misc
     /// Provides an enterprise-grade centralized logging matrix for the iomatix ecosystem,
     /// natively bridging runtime configuration metadata checks with the underlying LabAPI console engine.
     /// </summary>
-    internal static class iLogger
+    public static class iLogger
     {
         #region Informational Broadcasters
         /// <summary>

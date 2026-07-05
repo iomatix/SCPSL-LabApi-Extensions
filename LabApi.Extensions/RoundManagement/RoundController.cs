@@ -9,7 +9,7 @@ namespace LabApi.Extensions.RoundManagement
     /// Provides a highly optimized, stateful controller matrix designed to register, isolate, 
     /// and safely execute custom <see cref="RoundScenario"/> logic branches while overriding native round ending metrics.
     /// </summary>
-    internal class RoundController
+    public class RoundController
     {
         private readonly HashSet<RoundScenario> _registeredScenarios = new HashSet<RoundScenario>();
         private bool _autoRoundEndLocked;

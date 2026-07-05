@@ -37,6 +37,26 @@ namespace LabApi.Extensions
         /// </summary>
         public static double LimitMin(this double value, double minBaseline) => value < minBaseline ? minBaseline : value;
 
+        /// <summary>
+        /// Verifies whether the specified single-precision floating-point value evaluates to NaN or Infinity.
+        /// </summary>
+        /// <param name="value">The source float value to validate.</param>
+        /// <returns><c>true</c> if the value is NaN or Infinity; otherwise, <c>false</c>.</returns>
+        public static bool IsNanOrInfinity(this float value) => float.IsNaN(value) || float.IsInfinity(value);
+
+        /// <summary>
+        /// Verifies whether the specified double-precision floating-point value evaluates to NaN or Infinity.
+        /// </summary>
+        /// <param name="value">The source double value to validate.</param>
+        /// <returns><c>true</c> if the value is NaN or Infinity; otherwise, <c>false</c>.</returns>
+        public static bool IsNanOrInfinity(this double value) => double.IsNaN(value) || double.IsInfinity(value);
+
+        /// <summary>
+        /// Baseline safety fallback for integer primitives. Always returns false as integral types cannot represent NaN or Infinity states.
+        /// </summary>
+        /// <param name="value">The source integer value to validate.</param>
+        /// <returns>Always <c>false</c>.</returns>
+        public static bool IsNanOrInfinity(this int value) => false;
 
     }
 }

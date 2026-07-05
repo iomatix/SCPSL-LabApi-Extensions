@@ -1036,6 +1036,16 @@ public static IEnumerator<float> FlickerLightsCoroutine(this FacilityZone target
 
 ---
 
+## 📦 Class: ExiledCompatibilityLayer
+
+### 🔹 `ExecuteFallback()`
+**Description:** Executes the synchronization fallback to bridge directories and load missing configurations.
+```csharp
+public static void ExecuteFallback(Plugin plugin)
+```
+
+---
+
 ## 📦 Class: EnvironmentEngine
 
 ### 🔹 `StartEmergencyStrobe()`

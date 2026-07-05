@@ -54,19 +54,16 @@ namespace LabApi.Extensions
         }
 
         /// <summary>
-        /// Defensively audits all float components of a 3D vector against structural corruption anomalies (NaN or Infinity parameters).
+        /// Audits all float components of a 3D vector against structural corruption anomalies like NaN or Infinity.
         /// </summary>
-        /// <param name="vector">The source <see cref="UnityEngine.Vector3"/> layout structure undergoing mathematical validation.</param>
-        /// <param name="fallback">The fallback vector layout returned if corruption metrics are encountered. Defaults to <see cref="UnityEngine.Vector3.zero"/>.</param>
-        /// <returns>A pristine, mathematically operational coordinate vector guaranteed to be safe for engine math systems.</returns>
+        /// <param name="vector">The source <see cref="UnityEngine.Vector3"/> layout structure undergoing validation.</param>
+        /// <param name="fallback">The fallback vector returned if corruption metrics are encountered. Defaults to Vector3.zero.</param>
+        /// <returns>A operational coordinate vector safe for engine math systems.</returns>
         public static UnityEngine.Vector3 Sanitize(this UnityEngine.Vector3 vector, UnityEngine.Vector3 fallback = default)
         {
-            if (float.IsNaN(vector.x) || float.IsNaN(vector.y) || float.IsNaN(vector.z) ||
-                float.IsInfinity(vector.x) || float.IsInfinity(vector.y) || float.IsInfinity(vector.z))
-            {
-                return fallback; // Return the defensive default layer
-            }
-            return vector;
+            return vector.x.IsNanOrInfinity() || vector.y.IsNanOrInfinity() || vector.z.IsNanOrInfinity()
+                ? fallback
+                : vector;
         }
     }
 }

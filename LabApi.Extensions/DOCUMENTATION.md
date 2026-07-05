@@ -528,6 +528,12 @@ public static TSubConfig LoadOrCreateSubConfig<TMainConfig, TSubConfig>( this Pl
 
 ## 📦 Class: RoomExtensions
 
+### 🔹 `GetNeighbors()`
+**Description:** Resolves and collects all valid physically adjacent neighboring <see cref="Room"/> nodes connected directly to this room instance.
+```csharp
+public static IEnumerable<Room> GetNeighbors(this Room room)
+```
+
 ### 🔹 `WhereNotInPocket()`
 **Description:** Filters an enumerable collection stream of rooms to insulate the pipeline against sectors representing the unstable spatial bounds of SCP-106's Pocket Dimension.
 ```csharp
@@ -564,10 +570,28 @@ public static bool IsFreeOfEngagedGenerators(this Room room)
 public static bool IsRoomAndNeighborsFreeOfEngagedGenerators(this Room room)
 ```
 
-### 🔹 `TurnOffRoomLights()`
+### 🔹 `TurnOffLights()`
 **Description:** Forcibly suppresses the active illumination controllers across the specified room topology for a precise timeframe, and applies a localized probability-driven execution sweep to lock adjoining elevator pathway vectors.
 ```csharp
-public static void TurnOffRoomLights(this Room room, float duration, float elevatorAffectChance = 0f)
+public static void TurnOffLights(this Room room, float duration, float elevatorAffectChance = 0f)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Fluent API DRY Refactor: Restores electrical power to the room's lighting grid controllers and optionally triggers a brief flicker sequence.
+```csharp
+public static void TurnOnLights(this Room room, float flickerDuration = 0f)
+```
+
+### 🔹 `TurnOffRoomAndNeighborLights()`
+**Description:** Forcibly suppresses illumination across this room and all physically connected adjacent neighboring rooms simultaneously for a designated duration track.
+```csharp
+public static void TurnOffRoomAndNeighborLights(this Room room, float duration, float elevatorAffectChance = 0f, bool forced = false)
+```
+
+### 🔹 `TurnOnRoomAndNeighborLights()`
+**Description:** Restores active electrical power and forces an optional brief flickering update sequence across this room and all adjacent neighbors.
+```csharp
+public static void TurnOnRoomAndNeighborLights(this Room room, float duration = 0f)
 ```
 
 ### 🔹 `SetLightsColor()`
@@ -607,7 +631,7 @@ public static float GetDistanceTo(this Room room, Vector3 position)
 ```
 
 ### 🔹 `IsWithinRadius()`
-**Description:** Performs a high-performance proximity validation query tracking from the room's transform center center point utilizing underlying Unity vector squaring math (<c>sqrMagnitude</c>) to avoid high overhead calculation paths.
+**Description:** Performs a high-performance proximity validation query tracking from the room's transform center point utilizing underlying Unity vector squaring math (<c>sqrMagnitude</c>) to avoid high overhead calculation paths.
 ```csharp
 public static bool IsWithinRadius(this Room room, Vector3 position, float radiusSize)
 ```

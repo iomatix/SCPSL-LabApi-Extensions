@@ -197,16 +197,32 @@ namespace LabApi.Extensions
         /// <summary>
         /// Evaluates whether the localized room lighting grid envelope encompassing a specific <see cref="Player"/> instance has had its active illumination disabled.
         /// </summary>
-        /// <param name="player">The target <see cref="Player"/> subject instance checked for dark room environmental parameters.</param>
-        /// <returns><c>true</c> if the target player is verified within a room sector containing fully unpowered or disabled lighting grids; otherwise, <c>false</c>.</returns>
+        /// <param name="player">The target player subject checked for dark room environmental parameters.</param>
+        /// <returns><c>true</c> if the player is verified within a dark environment (including blacked-out elevators); otherwise, <c>false</c>.</returns>
         public static bool IsInDarkRoom(this Player player)
         {
             var room = player?.Room;
             if (room?.AllLightControllers == null) return false;
 
-            foreach (var lc in room.AllLightControllers)
+            // Phase 1: Fluent API Elevator Light Tracking Override
+            // If the subject is standing within the physical cabin perimeter of a connected elevator system,
+            // intercept the standard sequence and evaluate the elevator's specific logic registry tracking blocks.
+            foreach (Elevator elevator in Elevator.List)
             {
-                if (lc.LightsEnabled) return false;
+                if (elevator.CurrentDestination?.Rooms.Contains(room) == true)
+                {
+                    // Zero-allocation spatial radius check: verify if the player is inside the physical lift chamber car
+                    if (Vector3.Distance(player.Position, elevator.Base.transform.position) <= 4.5f)
+                    {
+                        return elevator.AreLightsOff();
+                    }
+                }
+            }
+
+            // Phase 2: Standard Room Light Controllers Check
+            foreach (var controller in room.AllLightControllers)
+            {
+                if (controller.LightsEnabled) return false;
             }
             return true;
         }

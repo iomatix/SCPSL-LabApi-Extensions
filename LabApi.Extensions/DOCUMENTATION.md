@@ -1,5 +1,15 @@
 # Audio Manager API - Architecture API Registry
 
+## 📦 Class: ActionChainExtensions
+
+### 🔹 `CreateChain()`
+**Description:** Initiates a clean, type-safe, fluent action orchestration chain bound to this target instance context.
+```csharp
+public static ActionChain<T> CreateChain<T>(this T target) where T : class
+```
+
+---
+
 ## 📦 Class: AssemblyExtensions
 
 ### 🔹 `FindEmbeddedAsset()`

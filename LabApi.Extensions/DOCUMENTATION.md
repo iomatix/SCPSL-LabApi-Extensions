@@ -218,6 +218,24 @@ public static void EnableEffect(this Player player, FacilityEffectType effect, b
 
 ## 📦 Class: ElevatorExtensions
 
+### 🔹 `TurnOffLights()`
+**Description:** Forcibly suppresses all physical and software-controlled light emission vectors inside the elevator cabin for a specific duration.
+```csharp
+public static void TurnOffLights(this Elevator elevator, float duration)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Restores standard electrical power and re-activates all internal illumination emitters inside the elevator cabin.
+```csharp
+public static void TurnOnLights(this Elevator elevator)
+```
+
+### 🔹 `AreLightsOff()`
+**Description:** Verifies whether the targeted elevator cabin is currently locked in an active blackout state loop.
+```csharp
+public static bool AreLightsOff(this Elevator elevator)
+```
+
 ### 🔹 `OpenActiveDoors()`
 **Description:** Fluently opens ONLY the elevator doors located on the currently active floor level, preventing cross-floor safety exploits.
 ```csharp

@@ -1234,6 +1234,40 @@ public static void LocalTrace(string source, string message)
 
 ---
 
+## 📦 Class: PluginBuilder
+
+### 🔹 `Create()`
+**Description:** Initiates a fluent orchestration builder instance utilizing implicit compiler type inference. <typeparam name="TConfig">The primary configuration type inferred by the compiler context.</typeparam>
+```csharp
+public static PluginBuilder<TConfig> Create<TConfig>(Plugin<TConfig> plugin) where TConfig : LabApiConfig, new()
+```
+
+### 🔹 `new()`
+**Description:** A high-performance fluent orchestration builder designed to streamline sub-configuration deployment and module initialization sequences. <typeparam name="TConfig">The primary framework configuration type conforming to <see cref="LabApiConfig"/>.</typeparam>
+```csharp
+public sealed class PluginBuilder<TConfig> where TConfig : LabApiConfig, new()
+```
+
+### 🔹 `PluginBuilder()`
+**Description:** Initializes a new instance of the <see cref="PluginBuilder{TConfig}"/> class.
+```csharp
+public PluginBuilder(Plugin<TConfig> plugin)
+```
+
+### 🔹 `BindSubConfig()`
+**Description:** Dynamically loads, validates, and binds a decentralized sub-configuration file to the plugin ecosystem. <typeparam name="TSubConfig">The target modular sub-configuration class type being loaded.</typeparam>
+```csharp
+public PluginBuilder<TConfig> BindSubConfig<TSubConfig>( string fileName, Action<TSubConfig> bindAction, Action<TSubConfig> validationAction = null) where TSubConfig : class, new()
+```
+
+### 🔹 `InitializeModule()`
+**Description:** Executes an initialization routine or boots up a subsystem component as part of the fluent pipeline.
+```csharp
+public PluginBuilder<TConfig> InitializeModule(Action initAction)
+```
+
+---
+
 ## 📦 Class: RoundController
 
 ### 🔹 `IsRoundEndLocked`

@@ -1,6 +1,9 @@
-﻿using LabApi.Extensions.Components;
+﻿using InventorySystem.Items.Firearms.Attachments;
+using LabApi.Extensions.Components;
 using LabApi.Features.Wrappers;
 using MapGeneration;
+using MEC;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -132,7 +135,57 @@ namespace LabApi.Extensions
         }
         #endregion
 
-        #region Light Emission Tracking
+        #region Light Emission
+        /// <summary>
+        /// Resolves the raw electrical emission state of whatever light-emitting hardware the subject currently holds.
+        /// </summary>
+        public static bool GetHeldLightSourceState(this Player player)
+        {
+            if (player?.CurrentItem is LightItem lightItem) return lightItem.IsEmitting;
+            if (player?.CurrentItem is FirearmItem firearm && firearm.HasAttachment(AttachmentName.Flashlight)) return firearm.FlashlightEnabled;
+            return false;
+        }
+
+        /// <summary>
+        /// Forces an immediate electrical state override on whatever light-emitting hardware the subject currently holds.
+        /// </summary>
+        public static void SetHeldLightSourceState(this Player player, bool emit)
+        {
+            if (player?.CurrentItem is LightItem lightItem) lightItem.IsEmitting = emit;
+            else if (player?.CurrentItem is FirearmItem firearm && firearm.HasAttachment(AttachmentName.Flashlight)) firearm.FlashlightEnabled = emit;
+        }
+
+        /// <summary>
+        /// Fluently drives an asynchronous localized strobe/flicker execution loop across the subject's held lightsource hardware asset layer.
+        /// </summary>
+        public static IEnumerator<float> FlickerHeldLightSourceCoroutine(this Player player, int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null)
+        {
+            if (player?.GameObject is null) yield break;
+
+            // Secure the exact internal item runtime serialization reference type to prevent desync on hot-swaps
+            Type initialItemType = player.CurrentItem?.GetType();
+            if (initialItemType is null) yield break;
+
+            for (int i = 0; i < flickerCount; i++)
+            {
+                // Safety Verification: Break instantly if subject disconnects, dies, or swaps item tracks mid-loop
+                if (!player.IsReady || !player.IsAlive || player.CurrentItem?.GetType() != initialItemType) break;
+
+                bool isLastIteration = (i == flickerCount - 1);
+                onTickFeedback?.Invoke(player, isLastIteration && forceOff);
+
+                // Fluent state inversion mutation
+                player.SetHeldLightSourceState(!player.GetHeldLightSourceState());
+                yield return Timing.WaitForSeconds(delayPerFlicker);
+            }
+
+            if (forceOff && player.IsReady && player.IsAlive && player.CurrentItem?.GetType() == initialItemType)
+            {
+                player.SetHeldLightSourceState(false);
+                onTickFeedback?.Invoke(player, true);
+            }
+        }
+
         /// <summary>
         /// Evaluates whether the targeted player instance is currently emitting mobile photon fields 
         /// via active standalone flashlights or tactical firearm attachments.

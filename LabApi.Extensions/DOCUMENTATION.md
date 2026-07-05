@@ -218,30 +218,6 @@ public static void EnableEffect(this Player player, FacilityEffectType effect, b
 
 ## 📦 Class: ElevatorExtensions
 
-### 🔹 `TurnOffLights()`
-**Description:** Forcibly suppresses all physical and software-controlled light emission vectors inside the elevator cabin for a specific duration.
-```csharp
-public static void TurnOffLights(this Elevator elevator, float duration)
-```
-
-### 🔹 `TurnOnLights()`
-**Description:** Restores standard electrical power and re-activates all internal illumination emitters inside the elevator cabin.
-```csharp
-public static void TurnOnLights(this Elevator elevator)
-```
-
-### 🔹 `FlickerElevatorLightsCoroutine()`
-**Description:** Fluently executes a synchronized asynchronous lighting flicker animation loop over an individual <see cref="Elevator"/> cabin space.
-```csharp
-public static IEnumerator<float> FlickerElevatorLightsCoroutine(this Elevator elevator, float duration, float frequency)
-```
-
-### 🔹 `AreLightsOff()`
-**Description:** Verifies whether the targeted elevator cabin is currently locked in an active blackout state loop.
-```csharp
-public static bool AreLightsOff(this Elevator elevator)
-```
-
 ### 🔹 `OpenActiveDoors()`
 **Description:** Fluently opens ONLY the elevator doors located on the currently active floor level, preventing cross-floor safety exploits.
 ```csharp
@@ -294,6 +270,34 @@ public static void UnlockElevatorsInZone(FacilityZone zone)
 **Description:** Processes a localized, probability-driven evaluation sweep across all elevators bound to a room, safely routing matching units into an execution action graph.
 ```csharp
 public static void HandleElevatorsForRoom(this Room room, float affectChance, float duration, Action<Elevator> elevatorAction)
+```
+
+---
+
+## 📦 Class: ElevatorLightingExtensions
+
+### 🔹 `AreLightsOff()`
+**Description:** Verified Boolean Query: Determines with zero heap allocations whether an elevator instance is undergoing active power suppression.
+```csharp
+public static bool AreLightsOff(this Elevator elevator)
+```
+
+### 🔹 `TurnOffLights()`
+**Description:** Forcibly suppresses all illumination and mesh rendering emission vectors inside the elevator cabin for a specific duration.
+```csharp
+public static void TurnOffLights(this Elevator elevator, float duration)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Restores standard electrical power and re-activates all internal mesh illumination parameters inside the elevator cabin.
+```csharp
+public static void TurnOnLights(this Elevator elevator)
+```
+
+### 🔹 `FlickerElevatorLightsCoroutine()`
+**Description:** Fluently executes a synchronized asynchronous lighting flicker animation loop over an individual elevator cabin space.
+```csharp
+public static IEnumerator<float> FlickerElevatorLightsCoroutine(this Elevator elevator, float duration, float frequency)
 ```
 
 ---

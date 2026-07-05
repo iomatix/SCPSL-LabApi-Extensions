@@ -102,6 +102,28 @@ public static bool TryAcquireLock<TKey>(this System.Collections.Generic.IDiction
 
 ---
 
+## 📦 Class: CommandExtensions
+
+### 🔹 `ConfirmPermission()`
+**Description:** Defensively verifies if the command sender possesses the required administrative permission tracking profile. Automatically grants authorization if the command originated from the native Server Console.
+```csharp
+public static bool ConfirmPermission(this ICommandSender sender, PlayerPermissions permission, out string errorResponse)
+```
+
+### 🔹 `TryGetFloat()`
+**Description:** Safely attempts to extract and parse a single-precision floating-point scalar variable from the raw arguments segment layout.
+```csharp
+public static bool TryGetFloat(this ArraySegment<string> arguments, int index, out float value, float minValue = float.MinValue)
+```
+
+### 🔹 `TryGetInt()`
+**Description:** Safely attempts to extract and parse a signed 32-bit integer data variable from the raw arguments segment layout.
+```csharp
+public static bool TryGetInt(this ArraySegment<string> arguments, int index, out int value, int minValue = int.MinValue)
+```
+
+---
+
 ## 📦 Class: DictionaryExtensions
 
 ### 🔹 `Deconstruct()`

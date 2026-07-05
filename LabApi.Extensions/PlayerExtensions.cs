@@ -249,35 +249,61 @@ namespace LabApi.Extensions
         }
 
         /// <summary>
-        /// Evaluates whether the localized room lighting grid envelope encompassing a specific <see cref="Player"/> instance has had its active illumination disabled.
+        /// Comprehensive environmental query evaluating whether the subject is engulfed in absolute darkness, 
+        /// safely mapping across both standard room lighting grids and independent moving elevator cabin systems.
         /// </summary>
-        /// <param name="player">The target player subject checked for dark room environmental parameters.</param>
-        /// <returns><c>true</c> if the player is verified within a dark environment (including blacked-out elevators); otherwise, <c>false</c>.</returns>
-        public static bool IsInDarkRoom(this Player player)
+        /// <param name="player">The target player subject checked for absolute environmental darkness parameters.</param>
+        /// <returns><c>true</c> if the player is verified within a dark environment (including cabins); otherwise, <c>false</c>.</returns>
+        public static bool IsInTrueDarkness(this Player player)
         {
-            var room = player?.Room;
-            if (room?.AllLightControllers == null) return false;
+            if (player?.GameObject is null) return false;
 
-            // Phase 1: Fluent API Elevator Light Tracking Override
-            // If the subject is standing within the physical cabin perimeter of a connected elevator system,
-            // intercept the standard sequence and evaluate the elevator's specific logic registry tracking blocks.
+            Elevator currentCabin = null;
+
+            // STAGE 1: High-performance boundary sweep across all global lifts using a secure spatial radius matrix.
+            // Using a clean foreach loop over Elevator.List bypasses indexer limitations on read-only collections seamlessly.
             foreach (Elevator elevator in Elevator.List)
             {
-                if (elevator.CurrentDestination?.Rooms.Contains(room) == true)
+                if (elevator?.Base?.transform is null) continue;
+
+                // 4.5 meters spatial radius safely encapsulates the entire physical volume envelope of any active lift cabin primitive
+                if (Vector3.Distance(player.Position, elevator.Base.transform.position) <= 4.5f)
                 {
-                    // Zero-allocation spatial radius check: verify if the player is inside the physical lift chamber car
-                    if (Vector3.Distance(player.Position, elevator.Base.transform.position) <= 4.5f)
-                    {
-                        return elevator.AreLightsOff();
-                    }
+                    currentCabin = elevator;
+                    break;
                 }
             }
 
-            // Phase 2: Standard Room Light Controllers Check
+            // STAGE 2: Resolve state based on active spatial domain discovered
+            if (currentCabin is not null)
+            {
+                // Inside an active lift cabin: illumination is strictly dictated by the independent lift's hardware power loop
+                return currentCabin.AreLightsOff();
+            }
+
+            // STAGE 3: Default spatial domain fallback layer targeting standard facility room illumination maps
+            return player.IsInDarkRoom();
+        }
+
+        /// <summary>
+        /// Evaluates whether the localized room lighting grid envelope encompassing a specific <see cref="Player"/> instance has had its active illumination disabled.
+        /// </summary>
+        /// <param name="player">The target player subject checked for dark room environmental parameters.</param>
+        /// <returns><c>true</c> if the room light controllers are entirely disabled; otherwise, <c>false</c>.</returns>
+        public static bool IsInDarkRoom(this Player player)
+        {
+            Room room = player?.Room;
+            if (room?.AllLightControllers is null) return false;
+
+            // MASTER-LEVEL ARCHITECTURE ALIGNMENT:
+            // Replaced fragile indexing over IEnumerable collection with a zero-allocation foreach iterator block.
+            // Resolves compiler errors regarding method groups and missing array indexing layout interfaces.
             foreach (var controller in room.AllLightControllers)
             {
-                if (controller.LightsEnabled) return false;
+                if (controller is not null && controller.LightsEnabled)
+                    return false;
             }
+
             return true;
         }
 

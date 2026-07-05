@@ -550,6 +550,12 @@ public static bool HasActiveLightSource(this Player player)
 public static bool IsInRoom(this Player player, params RoomName[] roomNames)
 ```
 
+### 🔹 `IsInTrueDarkness()`
+**Description:** Comprehensive environmental query evaluating whether the subject is engulfed in absolute darkness, safely mapping across both standard room lighting grids and independent moving elevator cabin systems.
+```csharp
+public static bool IsInTrueDarkness(this Player player)
+```
+
 ### 🔹 `IsInDarkRoom()`
 **Description:** Evaluates whether the localized room lighting grid envelope encompassing a specific <see cref="Player"/> instance has had its active illumination disabled.
 ```csharp

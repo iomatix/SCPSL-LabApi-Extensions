@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 namespace LabApi.Extensions
@@ -20,7 +21,7 @@ namespace LabApi.Extensions
         /// <returns><c>true</c> if the cooldown has successfully elapsed and the action executed; otherwise, <c>false</c>.</returns>
         public static bool ExecuteThrottled<TKey>(this IDictionary<TKey, DateTime> cooldownMap, TKey key, TimeSpan window, Action throttleAction)
         {
-            if (cooldownMap == null || throttleAction == null) return false;
+            if (cooldownMap is null || throttleAction is null) return false;
 
             DateTime now = DateTime.UtcNow;
 
@@ -28,43 +29,66 @@ namespace LabApi.Extensions
             {
                 if (now - lastExecutionTime < window)
                 {
-                    return false; // Operational window is locked. Suppress invocation.
+                    return false;
                 }
             }
 
-            // Fire the targeted behavioral payload directly
             throttleAction.Invoke();
-
-            // Commit the structural milestone record to the state map
             cooldownMap[key] = now;
             return true;
         }
 
         /// <summary>
         /// Systematically purges all historical mapping entries whose tracking timestamps have safely elapsed past a specific temporal comparison index.
-        /// Mitigates collection modification exceptions by isolating target records dynamically.
+        /// Mitigates collection modification exceptions by isolating target records dynamically via zero-allocation memory pooling.
         /// </summary>
         /// <typeparam name="TKey">The structural identity lookup key tracking type.</typeparam>
         /// <param name="dictionary">The target backing storage dictionary undergoing reference cleanup.</param>
-        /// <param name="comparisonTime">The core current <see cref="System.DateTime"/> index acting as the expiration threshold criteria.</param>
-        public static void PruneExpired<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> dictionary, System.DateTime comparisonTime)
+        /// <param name="comparisonTime">The core current <see cref="DateTime"/> index acting as the expiration threshold criteria.</param>
+        public static void PruneExpired<TKey>(this IDictionary<TKey, DateTime> dictionary, DateTime comparisonTime)
         {
             if (dictionary is null || dictionary.Count == 0) return;
 
-            System.Collections.Generic.List<TKey> expiredKeys = new();
+            int totalCount = dictionary.Count;
 
-            foreach (System.Collections.Generic.KeyValuePair<TKey, System.DateTime> kvp in dictionary)
+            // Performance Optimization: Rent contiguous memory from thread-safe ArrayPool to eliminate GC heap allocation spikes
+            TKey[] rentedStorage = ArrayPool<TKey>.Shared.Rent(totalCount);
+            int expiredCount = 0;
+
+            try
             {
-                if (comparisonTime >= kvp.Value)
+                // Performance Optimization: Pattern match concrete Dictionary to bypass interface dispatch allocation and leverage struct enumerator
+                if (dictionary is Dictionary<TKey, DateTime> concreteDict)
                 {
-                    expiredKeys.Add(kvp.Key);
+                    foreach (KeyValuePair<TKey, DateTime> kvp in concreteDict)
+                    {
+                        if (comparisonTime >= kvp.Value)
+                        {
+                            rentedStorage[expiredCount++] = kvp.Key;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (KeyValuePair<TKey, DateTime> kvp in dictionary)
+                    {
+                        if (comparisonTime >= kvp.Value)
+                        {
+                            rentedStorage[expiredCount++] = kvp.Key;
+                        }
+                    }
+                }
+
+                // Mutate the backing collection safely outside the evaluation iteration loop boundary
+                for (int i = 0; i < expiredCount; i++)
+                {
+                    dictionary.Remove(rentedStorage[i]);
                 }
             }
-
-            int count = expiredKeys.Count;
-            for (int i = 0; i < count; i++)
+            finally
             {
-                dictionary.Remove(expiredKeys[i]);
+                // Return rented buffer block to shared pool and clear data segments safely to avoid reference leaks
+                ArrayPool<TKey>.Shared.Return(rentedStorage, clearArray: true);
             }
         }
 
@@ -75,11 +99,11 @@ namespace LabApi.Extensions
         /// <param name="cooldownMap">The target backing storage dictionary tracking execution milestones.</param>
         /// <param name="key">The specific instance identity key target checked for active cooldown metrics.</param>
         /// <returns><c>true</c> if the tracking node exists and its registered expiration timestamp sits in the future; otherwise, <c>false</c>.</returns>
-        public static bool IsCooldownActive<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> cooldownMap, TKey key)
+        public static bool IsCooldownActive<TKey>(this IDictionary<TKey, DateTime> cooldownMap, TKey key)
         {
             if (cooldownMap is null || cooldownMap.Count == 0) return false;
 
-            return cooldownMap.TryGetValue(key, out System.DateTime expiryTime) && System.DateTime.UtcNow < expiryTime;
+            return cooldownMap.TryGetValue(key, out DateTime expiryTime) && DateTime.UtcNow < expiryTime;
         }
 
         /// <summary>
@@ -91,21 +115,20 @@ namespace LabApi.Extensions
         /// <param name="key">The specific instance identity key target checked for rate limiting.</param>
         /// <param name="lockWindow">The chronological execution lock window duration applied if authorization is granted.</param>
         /// <returns><c>true</c> if the gate was open, authorization was granted, and the new lock was committed; otherwise, <c>false</c>.</returns>
-        public static bool TryAcquireLock<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> cooldownMap, TKey key, System.TimeSpan lockWindow)
+        public static bool TryAcquireLock<TKey>(this IDictionary<TKey, DateTime> cooldownMap, TKey key, TimeSpan lockWindow)
         {
             if (cooldownMap is null) return false;
 
-            System.DateTime now = System.DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow;
 
-            if (cooldownMap.TryGetValue(key, out System.DateTime nextAllowedTime))
+            if (cooldownMap.TryGetValue(key, out DateTime nextAllowedTime))
             {
                 if (now < nextAllowedTime)
                 {
-                    return false; // Spatial gate is firmly locked. Abort transaction.
+                    return false;
                 }
             }
 
-            // Commit the future chronological boundary directly and grant passage
             cooldownMap[key] = now + lockWindow;
             return true;
         }

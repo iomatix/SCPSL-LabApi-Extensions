@@ -22,12 +22,6 @@ public static string FindEmbeddedAsset(this Assembly assembly, string primaryKey
 
 ## 📦 Class: CassieExtensions
 
-### 🔹 `CassieClear()`
-**Description:** Flushes the current real-time vocal audio broadcast queue entirely, instantly suspending any ongoing audio playback.
-```csharp
-public static void CassieClear() => Announcer.Clear();
-```
-
 ### 🔹 `SanitizeCassieString()`
 **Description:** Systematically scrubs raw text fields, stripping hidden carriage returns and formatting errors while safely preserving empty strings for intentional text muting configurations.
 ```csharp
@@ -65,21 +59,21 @@ public static double CalculateCassieMessageDuration(string message, double speed
 ```
 
 ### 🔹 `CalculateTotalMessagesDurations()`
-**Description:** Iteratively aggregates and computes the total unified summation timeline bounds for a collection layout dictionary mapping asynchronous text phrases to explicit local frequency speed bounds.
+**Description:** Aggregates and computes total durations avoiding allocation-heavy LINQ structure parsing.
 ```csharp
 public static double CalculateTotalMessagesDurations(IDictionary<string, float> messageSpeedDictionary)
 ```
 
 ### 🔹 `CalculateTotalMessagesDurations()`
-**Description:** Aggregates linear string data collections and determines their absolute runtime playback footprints utilizing a uniform fixed structural fallback speed index.
+**Description:** Aggregates linear collection playback footprints over a zero-allocation sequential iteration map.
 ```csharp
 public static double CalculateTotalMessagesDurations(IEnumerable<string> messages, float defaultSpeed = 1f)
 ```
 
 ### 🔹 `CalculateTotalMessagesDurations()`
-**Description:** High-performance params collection inline overloading layer designed to process inline string listings and capture cumulative timeline tracks without manual collection allocations.
+**Description:** High-performance overload routing parameters sequentially directly into structural loop wrappers.
 ```csharp
-public static double CalculateTotalMessagesDurations(float defaultSpeed = 1f, params string[] messages)
+public static double CalculateTotalMessagesDurations(float defaultSpeed, params string[] messages)
 ```
 
 ---
@@ -93,21 +87,21 @@ public static bool ExecuteThrottled<TKey>(this IDictionary<TKey, DateTime> coold
 ```
 
 ### 🔹 `PruneExpired()`
-**Description:** Systematically purges all historical mapping entries whose tracking timestamps have safely elapsed past a specific temporal comparison index. Mitigates collection modification exceptions by isolating target records dynamically. <typeparam name="TKey">The structural identity lookup key tracking type.</typeparam>
+**Description:** Systematically purges all historical mapping entries whose tracking timestamps have safely elapsed past a specific temporal comparison index. Mitigates collection modification exceptions by isolating target records dynamically via zero-allocation memory pooling. <typeparam name="TKey">The structural identity lookup key tracking type.</typeparam>
 ```csharp
-public static void PruneExpired<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> dictionary, System.DateTime comparisonTime)
+public static void PruneExpired<TKey>(this IDictionary<TKey, DateTime> dictionary, DateTime comparisonTime)
 ```
 
 ### 🔹 `IsCooldownActive()`
 **Description:** Evaluates defensively whether a specific key profile is currently locked within an active temporal cooldown window. <typeparam name="TKey">The structural identity lookup key tracking type.</typeparam>
 ```csharp
-public static bool IsCooldownActive<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> cooldownMap, TKey key)
+public static bool IsCooldownActive<TKey>(this IDictionary<TKey, DateTime> cooldownMap, TKey key)
 ```
 
 ### 🔹 `TryAcquireLock()`
 **Description:** Atomically evaluates a temporal gate check for a specific key target. If the lock window has elapsed, automatically commits a new future expiration milestone and grants authorization. <typeparam name="TKey">The structural identity lookup key tracking type.</typeparam>
 ```csharp
-public static bool TryAcquireLock<TKey>(this System.Collections.Generic.IDictionary<TKey, System.DateTime> cooldownMap, TKey key, System.TimeSpan lockWindow)
+public static bool TryAcquireLock<TKey>(this IDictionary<TKey, DateTime> cooldownMap, TKey key, TimeSpan lockWindow)
 ```
 
 ---
@@ -665,21 +659,21 @@ public static bool IsWithinAnyRadius(this Player player, IEnumerable<Vector3> po
 ```
 
 ### 🔹 `WhereAlive()`
-**Description:** Filters an enumerable collection layout stream of players utilizing high-performance lazy execution to yield exclusively active, ready human subjects who are currently alive in the current round lifecycle.
+**Description:** Filters an enumerable collection layout stream of players to yield exclusively active, ready human subjects who are currently alive.
 ```csharp
 public static IEnumerable<Player> WhereAlive(this IEnumerable<Player> players)
 ```
 
 ### 🔹 `WhereHuman()`
-**Description:** Filters an enumerable collection layout stream of players utilizing high-performance lazy execution to yield exclusively player subjects belonging to human factions.
+**Description:** Filters an enumerable collection layout stream of players utilizing high-performance lazy execution to yield exclusively human subjects.
 ```csharp
-public static System.Collections.Generic.IEnumerable<Player> WhereHuman(this System.Collections.Generic.IEnumerable<Player> players)
+public static IEnumerable<Player> WhereHuman(this IEnumerable<Player> players)
 ```
 
 ### 🔹 `WhereNotInPocket()`
-**Description:** Filters an enumerable collection layout stream of players to insulate the pipeline against subjects currently trapped inside the low-level execution bounds of SCP-106's Pocket Dimension.
+**Description:** Filters an enumerable collection layout stream of players to insulate the pipeline against subjects currently inside the Pocket Dimension.
 ```csharp
-public static System.Collections.Generic.IEnumerable<Player> WhereNotInPocket(this System.Collections.Generic.IEnumerable<Player> players)
+public static IEnumerable<Player> WhereNotInPocket(this IEnumerable<Player> players)
 ```
 
 ### 🔹 `ApplySensoryShock()`

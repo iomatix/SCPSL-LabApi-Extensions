@@ -1,10 +1,11 @@
-﻿namespace SCP_575.Compatibility
+﻿namespace LabApi.Extensions.Compatibility
 {
     using LabApi.Loader;
     using LabApi.Loader.Features.Plugins;
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Runtime.InteropServices;
     using Logger = LabApi.Extensions.Misc.iLogger;
 
     /// <summary>
@@ -13,12 +14,17 @@
     /// </summary>
     public static class ExiledCompatibilityLayer
     {
+        private const int ProcessTimeoutMilliseconds = 5000;
+        private const string LogTag = nameof(ExiledCompatibilityLayer);
+
         /// <summary>
         /// Executes the synchronization fallback to bridge directories and load missing configurations.
         /// </summary>
         public static void ExecuteFallback(Plugin plugin)
         {
-            Logger.Warn(nameof(ExiledCompatibilityLayer), "LoadConfigs was bypassed by the native lifecycle. Deploying dynamic cross-framework routing matrix.");
+            if (plugin is null) return;
+
+            Logger.Warn(LogTag, "LoadConfigs was bypassed by the native lifecycle. Deploying dynamic cross-framework routing matrix.");
 
             TryLinkEnvironments(plugin);
             plugin.LoadConfigs();
@@ -63,7 +69,7 @@
                 // 6. Data Preservation Matrix: If physical folder exists, migrate data before binding link
                 if (Directory.Exists(targetExiledPath))
                 {
-                    Logger.Info(nameof(ExiledCompatibilityLayer), "Legacy EXILED directory detected. Migrating historical configuration assets to LabAPI workspace...");
+                    Logger.Info(LogTag, "Legacy EXILED directory detected. Migrating historical configuration assets to LabAPI workspace...");
                     MigrateConfigurationFiles(targetExiledPath, labApiConfigDir);
 
                     Directory.Delete(targetExiledPath, recursive: true);
@@ -77,30 +83,27 @@
                 }
 
                 // 7. Execution Loop: Attempt to link environments natively via OS kernel
-                bool linkSuccess = TryCreateOSLink(targetExiledPath, labApiConfigDir);
-
-                if (linkSuccess)
+                if (TryCreateOSLink(targetExiledPath, labApiConfigDir))
                 {
-                    Logger.Info(nameof(ExiledCompatibilityLayer), $"Seamless cross-framework link deployed. [EXILED Proxy]: {targetExiledPath} ===> [LabAPI Workspace]: {labApiConfigDir}");
+                    Logger.Info(LogTag, $"Seamless cross-framework link deployed. [EXILED Proxy]: {targetExiledPath} ===> [LabAPI Workspace]: {labApiConfigDir}");
                 }
                 else
                 {
-                    // 8. Silent Fallback Matrix: If OS denies link creation due to restrictions, fall back to passive replication
-                    Logger.Warn(nameof(ExiledCompatibilityLayer), "OS denied native symlink privileges. Deploying passive replication fallback layer.");
+                    // 8. Silent Fallback Matrix: If OS denies link creation or times out, fall back to passive replication
+                    Logger.Warn(LogTag, "OS denied native symlink privileges or execution timed out. Deploying passive replication fallback layer.");
                     Directory.CreateDirectory(targetExiledPath);
                     MigrateConfigurationFiles(labApiConfigDir, targetExiledPath);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warn(nameof(ExiledCompatibilityLayer), $"Critical failure in compatibility matrix routing loop: {ex.Message}");
+                Logger.Warn(LogTag, $"Critical failure in compatibility matrix routing loop: {ex.Message}");
             }
         }
 
         private static bool TryCreateOSLink(string linkPath, string targetPath)
         {
-            // Evaluate Platform Identity natively
-            bool isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
             ProcessStartInfo psi = isWindows
                 ? new ProcessStartInfo("cmd.exe", $"/c mklink /J \"{linkPath}\" \"{targetPath}\"")
@@ -112,10 +115,16 @@
 
             try
             {
-                using (Process process = Process.Start(psi))
+                using Process process = Process.Start(psi);
+                if (process is null) return false;
+
+                // Thread-safety Guard: Enforce sub-process execution timeout boundaries to mitigate permanent I/O locks
+                if (!process.WaitForExit(ProcessTimeoutMilliseconds))
                 {
-                    process?.WaitForExit();
+                    process.Kill();
+                    return false;
                 }
+
                 return Directory.Exists(linkPath);
             }
             catch
@@ -128,8 +137,8 @@
         {
             try
             {
-                string[] files = Directory.GetFiles(sourceFolder, "*.yml");
-                foreach (string file in files)
+                // Performance Optimization: Replaced GetFiles with EnumerateFiles to stream directory indices without allocating arrays
+                foreach (string file in Directory.EnumerateFiles(sourceFolder, "*.yml"))
                 {
                     string name = Path.GetFileName(file);
                     string dest = Path.Combine(destinationFolder, name);
@@ -141,7 +150,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Warn(nameof(ExiledCompatibilityLayer), $"Asset replication execution choked: {ex.Message}");
+                Logger.Warn(LogTag, $"Asset replication execution choked: {ex.Message}");
             }
         }
 

@@ -24,7 +24,6 @@ namespace LabApi.Extensions
         {
             if (room?.ConnectedRooms is null) yield break;
 
-            // FIXED: HashSet requires foreach evaluation as it does not natively expose an indexer tracker property
             foreach (var roomIdentifier in room.ConnectedRooms)
             {
                 var neighborRoom = Room.Get(roomIdentifier);
@@ -120,117 +119,17 @@ namespace LabApi.Extensions
         public static bool IsRoomAndNeighborsFreeOfEngagedGenerators(this Room room)
         {
             if (room == null) return false;
+
+            // Single Source of Truth: Check self first. If failed, abort immediately.
             if (!room.IsFreeOfEngagedGenerators()) return false;
 
+            // Check neighbors dynamically.
             foreach (Room neighborRoom in room.GetNeighbors())
             {
                 if (!neighborRoom.IsFreeOfEngagedGenerators())
                     return false;
             }
             return true;
-        }
-        #endregion
-
-        #region Lighting Overrides
-        /// <summary>
-        /// Forcibly suppresses the active illumination controllers across the specified room topology for a precise timeframe.
-        /// Insulation Upgrade: Mechanical elevator door override routines removed to preserve Single Responsibility Principle (SRP).
-        /// </summary>
-        /// <param name="room">The target <see cref="Room"/> spatial context where the environmental illumination override is executed.</param>
-        /// <param name="duration">The execution lifespan timeframe measured in seconds during which the light suppression grid remains active.</param>
-        public static void TurnOffLights(this Room room, float duration)
-        {
-            if (room?.AllLightControllers == null) return;
-
-            foreach (var controller in room.AllLightControllers)
-            {
-                controller.FlickerLights(duration);
-            }
-        }
-
-        /// <summary>
-        /// Fluent API DRY Refactor: Restores electrical power to the room's lighting grid controllers and optionally triggers a brief flicker sequence.
-        /// </summary>
-        /// <param name="room">The target room architecture instance undergoing illumination restoration.</param>
-        /// <param name="flickerDuration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
-        public static void TurnOnLights(this Room room, float flickerDuration = 0f)
-        {
-            if (room?.AllLightControllers is null) return;
-
-            foreach (var controller in room.AllLightControllers)
-            {
-                controller.LightsEnabled = true;
-                if (flickerDuration > 0f)
-                {
-                    controller.FlickerLights(flickerDuration);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Forcibly suppresses illumination across this room and all physically connected adjacent neighboring rooms simultaneously for a designated duration track.
-        /// </summary>
-        /// <param name="room">The root room anchor node executing the multi-sector blackout cascade.</param>
-        /// <param name="duration">The operational execution lifespan measured in seconds during which the light grids stay unpowered.</param>
-        /// <param name="forced">A defensive safety toggle bypass flag to force processing overrides regardless of structural sub-states.</param>
-        public static void TurnOffRoomAndNeighborLights(this Room room, float duration, bool forced = false)
-        {
-            if (room is null) return;
-
-            room.TurnOffLights(duration);
-
-            foreach (Room neighbor in room.GetNeighbors())
-            {
-                neighbor.TurnOffLights(duration);
-            }
-        }
-
-        /// <summary>
-        /// Restores active electrical power and forces an optional brief flickering update sequence across this room and all adjacent neighbors.
-        /// </summary>
-        /// <param name="room">The root room anchor node executing the cluster grid illumination restoration.</param>
-        /// <param name="duration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
-        public static void TurnOnRoomAndNeighborLights(this Room room, float duration = 0f)
-        {
-            if (room is null) return;
-
-            // DRY Upgrade: Eradicated local action delegate in favor of the newly exposed TurnOnRoomLights primitive extension
-            room.TurnOnLights(duration);
-            foreach (Room neighbor in room.GetNeighbors())
-            {
-                neighbor.TurnOnLights(duration);
-            }
-        }
-
-        /// <summary>
-        /// Fluently overrides the active rendering illumination color spectrum channel variables for a specific room.
-        /// </summary>
-        /// <param name="room">The target room architecture instance undergoing visual state modifications.</param>
-        /// <param name="color">The target <see cref="Color"/> layout spectrum applied to the room lighting controllers.</param>
-        public static void SetLightsColor(this Room room, Color color)
-        {
-            if (room?.LightController is not null)
-            {
-                room.LightController.OverrideLightsColor = color;
-            }
-        }
-
-        /// <summary>
-        /// Systematically executes a batch color spectrum override sweep across an aggregated collection sequence of rooms.
-        /// </summary>
-        /// <param name="rooms">The collection layout tracking targeted room assets inside server memory.</param>
-        /// <param name="color">The target <see cref="Color"/> layout spectrum applied to all light nodes within the collection matrix.</param>
-        public static void SetLightsColor(this IEnumerable<Room> rooms, Color color)
-        {
-            if (rooms is null) return;
-
-            foreach (Room room in rooms)
-            {
-                if (room is not null)
-                {
-                    room.SetLightsColor(color);
-                }
-            }
         }
         #endregion
 
@@ -271,6 +170,107 @@ namespace LabApi.Extensions
                         breakable.TryBreak();
                     }
                 }
+            }
+        }
+        #endregion
+
+        #region Lighting Overrides
+        /// <summary>
+        /// Forcibly suppresses the active illumination controllers across the specified room topology for a precise timeframe.
+        /// </summary>
+        /// <param name="room">The target <see cref="Room"/> spatial context where the environmental illumination override is executed.</param>
+        /// <param name="duration">The execution lifespan timeframe measured in seconds during which the light suppression grid remains active.</param>
+        public static void TurnOffLights(this Room room, float duration)
+        {
+            if (room?.AllLightControllers == null) return;
+
+            foreach (var controller in room.AllLightControllers)
+            {
+                controller.FlickerLights(duration);
+            }
+        }
+
+        /// <summary>
+        /// Restores electrical power to the room's lighting grid controllers and optionally triggers a brief flicker sequence.
+        /// </summary>
+        /// <param name="room">The target room architecture instance undergoing illumination restoration.</param>
+        /// <param name="flickerDuration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
+        public static void TurnOnLights(this Room room, float flickerDuration = 0f)
+        {
+            if (room?.AllLightControllers is null) return;
+
+            foreach (var controller in room.AllLightControllers)
+            {
+                controller.LightsEnabled = true;
+                if (flickerDuration > 0f)
+                {
+                    controller.FlickerLights(flickerDuration);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Forcibly suppresses illumination across this room and all physically connected adjacent neighboring rooms simultaneously.
+        /// Fully DRY implementation utilizing centralized action propagation cascades.
+        /// </summary>
+        /// <param name="room">The root room anchor node executing the multi-sector blackout cascade.</param>
+        /// <param name="duration">The operational execution lifespan measured in seconds during which the light grids stay unpowered.</param>
+        /// <param name="forced">A defensive safety toggle bypass flag to force processing overrides regardless of structural sub-states.</param>
+        public static void TurnOffRoomAndNeighborLights(this Room room, float duration, bool forced = false)
+        {
+            // DRY: We reuse our existing propagation delegate!
+            room.ExecuteActionOnRoomAndNeighbors(r => r.TurnOffLights(duration));
+        }
+
+        /// <summary>
+        /// Restores active electrical power and forces an optional brief flickering update sequence across this room and all adjacent neighbors.
+        /// Fully DRY implementation utilizing centralized action propagation cascades.
+        /// </summary>
+        /// <param name="room">The root room anchor node executing the cluster grid illumination restoration.</param>
+        /// <param name="duration">The optional temporal flicker sequence window in seconds (assign 0s for immediate baseline initialization).</param>
+        public static void TurnOnRoomAndNeighborLights(this Room room, float duration = 0f)
+        {
+            // DRY: We reuse our existing propagation delegate!
+            room.ExecuteActionOnRoomAndNeighbors(r => r.TurnOnLights(duration));
+        }
+
+        /// <summary>
+        /// Fluently overrides the active rendering illumination color spectrum channel variables for a specific room.
+        /// </summary>
+        /// <param name="room">The target room architecture instance undergoing visual state modifications.</param>
+        /// <param name="color">The target <see cref="Color"/> layout spectrum applied to the room lighting controllers.</param>
+        public static void SetLightsColor(this Room room, Color color)
+        {
+            if (room?.LightController is not null)
+            {
+                room.LightController.OverrideLightsColor = color;
+            }
+        }
+
+        /// <summary>
+        /// Systematically executes a batch color spectrum override sweep across an aggregated collection sequence of rooms.
+        /// Employs Zero-Allocation performance optimizations for concrete list architectures.
+        /// </summary>
+        /// <param name="rooms">The collection layout tracking targeted room assets inside server memory.</param>
+        /// <param name="color">The target <see cref="Color"/> layout spectrum applied to all light nodes within the collection matrix.</param>
+        public static void SetLightsColor(this IEnumerable<Room> rooms, Color color)
+        {
+            if (rooms is null) return;
+
+            // Zero-allocation batch processing optimization
+            if (rooms is List<Room> concreteList)
+            {
+                int count = concreteList.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    concreteList[i]?.SetLightsColor(color);
+                }
+                return;
+            }
+
+            foreach (Room room in rooms)
+            {
+                room?.SetLightsColor(color);
             }
         }
         #endregion
@@ -342,7 +342,7 @@ namespace LabApi.Extensions
             room.SetLightsColor(color);
 
             // Performance Optimization: Cache IEnumerable to array ONCE before entering the time-critical loop
-            var controllers = System.Linq.Enumerable.ToArray(room.AllLightControllers);
+            var controllers = Enumerable.ToArray(room.AllLightControllers);
             int controllerCount = controllers.Length;
 
             for (int i = 0; i < flickers; i++)
@@ -394,7 +394,7 @@ namespace LabApi.Extensions
                 {
                     validRooms.Add(room);
                     room.SetLightsColor(color);
-                    controllersMatrix.Add(System.Linq.Enumerable.ToArray(room.AllLightControllers));
+                    controllersMatrix.Add(Enumerable.ToArray(room.AllLightControllers));
                 }
             }
 

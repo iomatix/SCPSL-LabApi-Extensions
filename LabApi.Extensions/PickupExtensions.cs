@@ -40,6 +40,8 @@ namespace LabApi.Extensions
             }
         }
 
+        #region Batch Operations (Zero-Allocation High-Performance Overloads)
+
         /// <summary>
         /// Iterates over an aggregated collection layout of spawned pickups and forcibly applies batch kinetic physical propulsion forces.
         /// Seamlessly delegates item execution to maintain absolute single responsibility and zero duplication.
@@ -51,11 +53,40 @@ namespace LabApi.Extensions
         {
             if (pickups is null) return;
 
+            // Zero-allocation batch processing optimization
+            if (pickups is List<Pickup> concreteList)
+            {
+                int count = concreteList.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    concreteList[i].ApplyKineticBlast(linearVelocityMagnitude, angularVelocityMagnitude);
+                }
+                return;
+            }
+
             foreach (Pickup pickup in pickups)
             {
-                // Absolute structural reuse – zero duplicated physics or try-catch logs.
                 pickup.ApplyKineticBlast(linearVelocityMagnitude, angularVelocityMagnitude);
             }
         }
+
+        /// <summary>
+        /// Iterates over an inline array of spawned pickups and forcibly applies batch kinetic physical propulsion forces.
+        /// </summary>
+        /// <param name="linearVelocityMagnitude">The directional scale baseline applied to drive linear movement trajectories.</param>
+        /// <param name="angularVelocityMagnitude">The rotational torque scale baseline applied to trigger spinning effects.</param>
+        /// <param name="pickups">The target inline array tracking world item entities undergoing physical acceleration.</param>
+        public static void ApplyKineticBlast(float linearVelocityMagnitude, float angularVelocityMagnitude, params Pickup[] pickups)
+        {
+            if (pickups is null) return;
+
+            int count = pickups.Length;
+            for (int i = 0; i < count; i++)
+            {
+                pickups[i].ApplyKineticBlast(linearVelocityMagnitude, angularVelocityMagnitude);
+            }
+        }
+
+        #endregion
     }
 }

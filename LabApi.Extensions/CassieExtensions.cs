@@ -22,7 +22,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Glitchifies the specified message internally and dispatches the announcement, returning its playback duration.
         /// </summary>
-        public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance, CassiePlaybackModifiers modifiers = default)
+        public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance)
         {
             string sanitizedInput = message.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedInput)) return 0.0;
@@ -35,7 +35,7 @@ namespace LabApi.Extensions
                 // We set glMessageitchScale to 0f because the text already contains explicit glitch/jam tokens
                 Announcer.Message(glitchedMessage, string.Empty, playBackground: false, glitchScale: 0f);
 
-                return Announcer.CalculateDuration(glitchedMessage, modifiers);
+                return Announcer.CalculateDuration(glitchedMessage, default);
             }
             catch (Exception ex)
             {

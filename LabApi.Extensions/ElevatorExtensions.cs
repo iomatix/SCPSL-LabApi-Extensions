@@ -213,6 +213,11 @@ namespace LabApi.Extensions
                 }
             }
         }
+
+        /// <summary>
+        /// Gets all active elevators associated with the specified facility zone destination.
+        /// </summary>
+        public static IEnumerable<Elevator> GetElevatorsInZone(FacilityZone zone) => zone.GetElevators();
         #endregion
 
         #region State Assessment (Validation Ensembles)

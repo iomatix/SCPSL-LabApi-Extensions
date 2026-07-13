@@ -31,7 +31,7 @@ public static string SanitizeCassieString(this string rawMessage) => string.IsNu
 ### 🔹 `DispatchGlitchyMessage()`
 **Description:** Glitchifies the specified message internally and dispatches the announcement, returning its playback duration.
 ```csharp
-public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance, CassiePlaybackModifiers modifiers = default)
+public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance)
 ```
 
 ### 🔹 `DispatchMessage()`

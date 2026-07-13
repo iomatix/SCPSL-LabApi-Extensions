@@ -16,6 +16,7 @@ namespace LabApi.Extensions
     public static class PlayerExtensions
     {
         #region Tracking
+
         /// <summary>
         /// Attaches a tracking GameObject to a single player using a transform tracker component.
         /// </summary>
@@ -57,11 +58,13 @@ namespace LabApi.Extensions
             int count = players.Length;
             for (int i = 0; i < count; i++) players[i].AttachTrackingObject(followerObject, offset);
         }
+
         #endregion
 
         #region Mass Notifications
+
         /// <summary>
-        /// Sends a hint message to all fully initialized and ready players.
+        /// Sends a hint message to all fully initialized and ready players globally.
         /// </summary>
         public static void BroadcastHintToAll(string hintContent, float duration = 5f)
         {
@@ -109,10 +112,23 @@ namespace LabApi.Extensions
         /// Sends a hint message to an inline array of players, filtering out null or unready entities.
         /// </summary>
         public static void BroadcastHint(string hintContent, float duration, params Player[] players)
-            => BroadcastHint(players, hintContent, duration);
+        {
+            if (players == null || string.IsNullOrEmpty(hintContent)) return;
+
+            int count = players.Length;
+            for (int i = 0; i < count; i++)
+            {
+                if (players[i] != null && players[i].IsReady)
+                {
+                    players[i].SendHint(hintContent, duration);
+                }
+            }
+        }
+
         #endregion
 
         #region Status Tracking
+
         /// <summary>
         /// Gets the current Hume Shield value of a player, returning 0 if the stat module is missing.
         /// </summary>
@@ -135,9 +151,11 @@ namespace LabApi.Extensions
         {
             return player is not null && player.IsReady && player.IsAlive && player.IsHuman;
         }
+
         #endregion
 
         #region Spatial Proximity Tracking
+
         /// <summary>
         /// Calculates the Euclidean distance between a player and a specified position vector.
         /// </summary>
@@ -155,9 +173,11 @@ namespace LabApi.Extensions
             if (player?.GameObject == null) return false;
             return (player.Position - position).sqrMagnitude <= (maxDistance * maxDistance);
         }
+
         #endregion
 
         #region Light Emission
+
         /// <summary>
         /// Checks if the player's currently held light source item or weapon flashlight attachment is active.
         /// </summary>
@@ -256,7 +276,18 @@ namespace LabApi.Extensions
         /// Triggers the flicker coroutine loop for an inline array of players.
         /// </summary>
         public static void FlickerHeldLightSource(int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null, params Player[] players)
-            => FlickerHeldLightSource(players, flickerCount, delayPerFlicker, forceOff, onTickFeedback);
+        {
+            if (players == null) return;
+
+            int count = players.Length;
+            for (int i = 0; i < count; i++)
+            {
+                if (players[i] is not null)
+                {
+                    Timing.RunCoroutine(players[i].FlickerHeldLightSourceCoroutine(flickerCount, delayPerFlicker, forceOff, onTickFeedback));
+                }
+            }
+        }
 
         /// <summary>
         /// Verifies if the player is actively emitting light via flashlights or firearm attachments.
@@ -280,9 +311,11 @@ namespace LabApi.Extensions
 
             return false;
         }
+
         #endregion
 
         #region Advanced Environmental & Position Filtering
+
         /// <summary>
         /// Checks if the player is in any of the specified rooms using a zero-allocation evaluation loop.
         /// </summary>
@@ -384,9 +417,11 @@ namespace LabApi.Extensions
 
             return false;
         }
+
         #endregion
 
         #region Collection Query Extensions
+
         /// <summary>
         /// Filters a player collection to return only ready and living instances.
         /// </summary>
@@ -422,9 +457,11 @@ namespace LabApi.Extensions
                 if (player != null && player.Room?.Name != RoomName.Pocket) yield return player;
             }
         }
+
         #endregion
 
         #region Status Effects Injection
+
         /// <summary>
         /// Applies a combination of visual and auditory status impairments to a single player.
         /// </summary>
@@ -474,9 +511,11 @@ namespace LabApi.Extensions
                 players[i].ApplySensoryShock(flashDuration, blindDuration, blurDuration, deafenDuration);
             }
         }
+
         #endregion
 
         #region Cross-Entity Spatial Forwarding Overloads
+
         /// <summary>
         /// Resolves the facility room matching the player's current spatial coordinates.
         /// </summary>
@@ -503,9 +542,11 @@ namespace LabApi.Extensions
             if (player?.GameObject == null || room?.Base == null) return false;
             return player.IsWithinRadius(room.Position, radiusSize);
         }
+
         #endregion
 
         #region Decoupled Gameplay Scenarios Validation
+
         /// <summary>
         /// Determines if a player fulfills basic criteria to trigger an escape sequence.
         /// </summary>
@@ -526,16 +567,19 @@ namespace LabApi.Extensions
 
             return player.IsWithinAnyRadius(cachedShelterLocations, shelterZoneSize);
         }
+
         #endregion
 
         #region Identity
+
         /// <summary>
         /// Resolves a single player from a fuzzy string identifier using exact matching, substring containment, and Levenshtein distance checks.
+        /// Completely avoids heavy allocations on large player lists during evaluation cycles.
         /// </summary>
         public static bool TryResolveFuzzy(this IEnumerable<Player> players, string identifier, out Player target, out string errorResponse)
         {
             target = null;
-            string cleanSearch = identifier.Trim().ToLowerInvariant();
+            string cleanSearch = identifier?.Trim().ToLowerInvariant();
 
             if (string.IsNullOrWhiteSpace(cleanSearch))
             {
@@ -543,12 +587,21 @@ namespace LabApi.Extensions
                 return false;
             }
 
-            var allPlayers = players.ToList();
+            // Zero-allocation cache conversion check
+            IReadOnlyCollection<Player> cachedPlayers = players as IReadOnlyCollection<Player> ?? players.ToList();
 
-            Player exactMatch = allPlayers.FirstOrDefault(p =>
-                p.PlayerId.ToString() == cleanSearch ||
-                p.UserId.NormalizeUserId() == cleanSearch ||
-                p.Nickname.Equals(cleanSearch, StringComparison.OrdinalIgnoreCase));
+            // 1. Check for exact matches (ID, UserId, or exact Nickname)
+            Player exactMatch = null;
+            foreach (var p in cachedPlayers)
+            {
+                if (p.PlayerId.ToString() == cleanSearch ||
+                    p.UserId.NormalizeUserId() == cleanSearch ||
+                    p.Nickname.Equals(cleanSearch, StringComparison.OrdinalIgnoreCase))
+                {
+                    exactMatch = p;
+                    break;
+                }
+            }
 
             if (exactMatch is not null)
             {
@@ -557,34 +610,41 @@ namespace LabApi.Extensions
                 return true;
             }
 
-            var candidates = allPlayers.Where(p =>
+            // 2. Fallback to Substring & Fuzzy matching using standard iterators
+            var candidates = new HashSet<Player>();
+            var distanceScores = new List<(Player player, int distance)>();
+
+            foreach (var p in cachedPlayers)
             {
                 string nickLower = p.Nickname.ToLowerInvariant();
-                return nickLower.Contains(cleanSearch) || cleanSearch.Contains(nickLower);
-            }).ToList();
 
-            if (candidates.Count == 0)
-            {
-                var distanceScores = new List<(Player player, int distance)>();
-                foreach (Player p in allPlayers)
+                // Substring containment match
+                if (nickLower.Contains(cleanSearch) || cleanSearch.Contains(nickLower))
                 {
-                    string nickLower = p.Nickname.ToLowerInvariant();
-                    int distance = cleanSearch.ComputeLevenshteinDistance(nickLower);
-
-                    if (distance <= 3 && distance < nickLower.Length - 2)
-                    {
-                        distanceScores.Add((p, distance));
-                    }
+                    candidates.Add(p);
+                    continue; // Skip Levenshtein if containment is already satisfied
                 }
 
-                if (distanceScores.Count > 0)
+                // Levenshtein boundary match
+                int distance = cleanSearch.ComputeLevenshteinDistance(nickLower);
+                if (distance <= 3 && distance < nickLower.Length - 2)
                 {
-                    int minDistance = distanceScores.Min(s => s.distance);
-                    candidates = distanceScores.Where(s => s.distance == minDistance).Select(s => s.player).ToList();
+                    distanceScores.Add((p, distance));
                 }
             }
 
-            candidates = candidates.Distinct().ToList();
+            // If no pure substring matches, evaluate the Levenshtein results
+            if (candidates.Count == 0 && distanceScores.Count > 0)
+            {
+                int minDistance = distanceScores.Min(s => s.distance);
+                foreach (var s in distanceScores)
+                {
+                    if (s.distance == minDistance)
+                    {
+                        candidates.Add(s.player);
+                    }
+                }
+            }
 
             if (candidates.Count == 0)
             {
@@ -599,10 +659,11 @@ namespace LabApi.Extensions
                 return false;
             }
 
-            target = candidates[0];
+            target = Enumerable.First(candidates);
             errorResponse = null;
             return true;
         }
+
         #endregion
     }
 }

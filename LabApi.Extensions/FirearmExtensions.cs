@@ -74,7 +74,7 @@ namespace LabApi.Extensions
         }
         #endregion
 
-        #region Batch Firearm Collections Checks
+        #region Batch Firearm Collections Checks (Added for API Consistency)
         /// <summary>
         /// Checks if all firearms in the collection have the specified attachment enabled.
         /// </summary>
@@ -94,7 +94,7 @@ namespace LabApi.Extensions
 
             foreach (FirearmItem firearm in firearms)
             {
-                if (!firearms.HasAttachment(attachmentName)) return false;
+                if (!firearm.HasAttachment(attachmentName)) return false;
             }
 
             return true;

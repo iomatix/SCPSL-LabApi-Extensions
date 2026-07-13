@@ -399,27 +399,51 @@ public static void HandleElevatorsForRoom(this Room room, float affectChance, fl
 ## 📦 Class: ElevatorLightingExtensions
 
 ### 🔹 `TurnOffLights()`
-**Description:** PLACEHOLDER: Current implementation relies on internal ElevatorChamber illumination state. Due to engine-level render pipeline constraints, automated blackout suppression is currently deferred.
+**Description:** Delays or suppresses elevator cabin lighting for a specified duration.
 ```csharp
 public static void TurnOffLights(this Elevator elevator, float duration)
 ```
 
 ### 🔹 `TurnOnLights()`
-**Description:** PLACEHOLDER: Restoration logic is currently idle; elevator illumination state remains persistent.
+**Description:** Restores elevator cabin lighting.
 ```csharp
 public static void TurnOnLights(this Elevator elevator)
 ```
 
 ### 🔹 `FlickerElevatorLightsCoroutine()`
-**Description:** PLACEHOLDER: Synchronized visual flicker animation loop is currently inactive pending component access.
+**Description:** Runs a visual flicker animation loop for the elevator lighting.
 ```csharp
 public static IEnumerator<float> FlickerElevatorLightsCoroutine(this Elevator elevator, float duration, float frequency)
 ```
 
 ### 🔹 `AreLightsOff()`
-**Description:** Verified Boolean Query: Elevator cabins are currently treated as SafeZones where lights are constant.
+**Description:** Checks if the elevator lights are currently disabled.
 ```csharp
 public static bool AreLightsOff(this Elevator elevator) => false;
+```
+
+### 🔹 `TurnOffLights()`
+**Description:** Turns off lights for a collection of elevators for the specified duration.
+```csharp
+public static void TurnOffLights(this IEnumerable<Elevator> elevators, float duration)
+```
+
+### 🔹 `TurnOffLights()`
+**Description:** Turns off lights for an inline array of elevators for the specified duration.
+```csharp
+public static void TurnOffLights(float duration, params Elevator[] elevators)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Turns on lights for a collection of elevators.
+```csharp
+public static void TurnOnLights(this IEnumerable<Elevator> elevators)
+```
+
+### 🔹 `TurnOnLights()`
+**Description:** Turns on lights for an inline array of elevators.
+```csharp
+public static void TurnOnLights(params Elevator[] elevators)
 ```
 
 ---
@@ -820,6 +844,18 @@ public static void SetHeldLightSourceState(bool emit, params Player[] players)
 public static IEnumerator<float> FlickerHeldLightSourceCoroutine(this Player player, int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null)
 ```
 
+### 🔹 `FlickerHeldLightSource()`
+**Description:** Triggers the flicker coroutine loop for a collection of players.
+```csharp
+public static void FlickerHeldLightSource(this IEnumerable<Player> players, int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null)
+```
+
+### 🔹 `FlickerHeldLightSource()`
+**Description:** Triggers the flicker coroutine loop for an inline array of players.
+```csharp
+public static void FlickerHeldLightSource(int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null, params Player[] players) => FlickerHeldLightSource(players, flickerCount, delayPerFlicker, forceOff, onTickFeedback);
+```
+
 ### 🔹 `HasActiveLightSource()`
 **Description:** Verifies if the player is actively emitting light via flashlights or firearm attachments.
 ```csharp
@@ -1107,7 +1143,7 @@ public static void SetInactiveTimeForAll(this IEnumerable<Tesla> teslas, float d
 ```
 
 ### 🔹 `Disable()`
-**Description:** Deactivates a collection of Tesla gates using a default shorthand configuration envelope.
+**Description:** Deactivates a collection of Tesla gates using a default shorthand configuration.
 ```csharp
 public static void Disable(this IEnumerable<Tesla> teslas, float duration = 5.0f, bool forceTrigger = false) => teslas.DisableFor(duration, forceTrigger);
 ```

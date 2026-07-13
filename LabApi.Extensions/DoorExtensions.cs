@@ -65,11 +65,11 @@ namespace LabApi.Extensions
 
         #region Single Door Operations
 
-            /// <summary>
-            /// Fluently unseals an individual door instance, driving its structural passage topology state to open.
-            /// </summary>
-            /// <param name="door">The target door instance targeted for structural manipulation.</param>
-            /// <param name="bypassLocks">If set to <c>true</c>, forces the state mutation even if the door is restricted by an active lock.</param>
+        /// <summary>
+        /// Fluently unseals an individual door instance, driving its structural passage topology state to open.
+        /// </summary>
+        /// <param name="door">The target door instance targeted for structural manipulation.</param>
+        /// <param name="bypassLocks">If set to <c>true</c>, forces the state mutation even if the door is restricted by an active lock.</param>
         public static void Open(this Door door, bool bypassLocks = false) => door.SetOpenState(opened: true, bypassLocks);
 
         /// <summary>

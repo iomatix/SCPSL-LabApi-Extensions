@@ -14,24 +14,17 @@ namespace LabApi.Extensions
         /// Systematically scrubs raw text fields, stripping hidden carriage returns and formatting errors 
         /// while safely preserving empty strings for intentional text muting configurations.
         /// </summary>
-        /// <param name="rawMessage">The raw, un-sanitized source configuration string text layout.</param>
-        /// <returns>A fully sanitized, single-line phonetic string ready for speech synthesis engines.</returns>
         public static string SanitizeCassieString(this string rawMessage)
-        {
-            if (string.IsNullOrWhiteSpace(rawMessage)) return string.Empty;
-            return rawMessage.Replace("\r", "").Replace("\n", " ").Trim();
-        }
+            => string.IsNullOrWhiteSpace(rawMessage)
+                ? string.Empty
+                : rawMessage.Replace("\r", "").Replace("\n", " ").Trim();
 
+        #region Single Message Dispatchers
         /// <summary>
         /// Dispatches an intentionally modulated, corrupted vocal sequence across the global audio matrix, 
         /// computing its final playback duration tracking envelope.
         /// </summary>
-        /// <param name="message">The raw source text layout requested for transmission processing.</param>
-        /// <param name="glitchChance">The evaluated anomaly coefficient percentage for structural corruption tracing.</param>
-        /// <param name="jamChance">The structural distortion probability ceiling assigned for audio degradation scaling.</param>
-        /// <param name="glitchifierOutput">The pre-processed, corrupted phonetic string text payload ready for announcer consumption.</param>
-        /// <returns>The precise runtime track width duration metric measured in fractional seconds; otherwise, 0.0 on execution failure.</returns>
-        public static double Cassie_GlitchyMessage(string message, float glitchChance, float jamChance, string glitchifierOutput)
+        public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance, string glitchifierOutput)
         {
             string sanitizedOutput = glitchifierOutput.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedOutput)) return 0.0;
@@ -53,9 +46,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Dispatches a clean, high-clarity vocal notification sequence using optimized high-pass pitch metrics across global facility channels.
         /// </summary>
-        /// <param name="message">The targeting structural notification string payload requested for public broadcast.</param>
-        /// <returns>The computed execution track timeline width evaluated in seconds; otherwise, 0.0 if an anomaly is intercepted.</returns>
-        public static double Cassie_Message(string message)
+        public static double DispatchMessage(string message)
         {
             string sanitizedMessage = message.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedMessage)) return 0.0;
@@ -78,12 +69,6 @@ namespace LabApi.Extensions
         /// Executes defensive sanitization, structural sequence formatting, and real-time streaming transmission of CASSIE phrases 
         /// under concrete queue priority matrices, optionally overriding active subtitle layers.
         /// </summary>
-        /// <param name="message">The base notification message payload targeting the vocal execution array.</param>
-        /// <param name="customSubtitles">The alternative textual closed-captioning layout mapped to active user displays.</param>
-        /// <param name="shouldClear">Indicates whether the active global announcer sequence queue must be aggressively flushed prior to initialization.</param>
-        /// <param name="pitchModifier">The concrete pitch adjustment syntax string (e.g., 'pitch_1.05').</param>
-        /// <param name="priority">The relative scheduling weight index tracking the message's positional allocation inside the global pipeline.</param>
-        /// <param name="disableMessages">Defensive toggle bypass to suppress contextual subtitle generation arrays if evaluation bounds are met.</param>
         public static void ProcessAndDispatchMessage(string message, string customSubtitles, bool shouldClear, string pitchModifier, float priority, bool disableMessages = false)
         {
             string sanitizedMessage = message.SanitizeCassieString();
@@ -97,32 +82,70 @@ namespace LabApi.Extensions
 
             Announcer.Message($"{cleanPitch} {sanitizedMessage}", customSubtitles: processedSubtitles, priority: priority, playBackground: false);
         }
+        #endregion
 
+        #region Batch Message Dispatchers (Zero-Allocation Internal Implementations)
+        /// <summary>
+        /// Dispatches a collection of messages sequentially using high-performance iteration patterns.
+        /// </summary>
+        public static void DispatchMessage(IEnumerable<string> messages)
+        {
+            if (messages is null) return;
+
+            if (messages is List<string> concreteList)
+            {
+                int count = concreteList.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    DispatchMessage(concreteList[i]);
+                }
+                return;
+            }
+
+            foreach (string message in messages)
+            {
+                DispatchMessage(message);
+            }
+        }
+
+        /// <summary>
+        /// Dispatches an inline array of messages sequentially.
+        /// </summary>
+        public static void DispatchMessage(params string[] messages)
+        {
+            if (messages is null) return;
+
+            int count = messages.Length;
+            for (int i = 0; i < count; i++)
+            {
+                DispatchMessage(messages[i]);
+            }
+        }
+        #endregion
+
+        #region Utilities & Countdown Mechanics
         /// <summary>
         /// Transforms a primitive integer value token into a structured CASSIE vocal countdown phonetic sequence format 
         /// matching the specific operational context tracking threshold boundaries.
         /// </summary>
-        /// <param name="notifyTime">The remaining historical timeframe integer token measured in structural seconds.</param>
-        /// <param name="alertContext">The terminal contextual description phrase appended to values tracking above safety limits.</param>
-        /// <returns>A fully synchronized, ready-to-broadcast phonetic CASSIE phrase format configuration string.</returns>
         public static string ToCassieCountdown(this int notifyTime, string alertContext = "Seconds until Event Detonation")
         {
             string sanitizedContext = alertContext.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedContext)) sanitizedContext = "Seconds";
 
-            if (notifyTime < 5) return $".G3 {notifyTime} .G5";
-            if (notifyTime >= 5 && notifyTime <= 20) return $".G3 {notifyTime} Seconds .G5";
-            return $".G3 {notifyTime} {sanitizedContext} .G5";
+            return notifyTime switch
+            {
+                < 5 => $".G3 {notifyTime} .G5",
+                >= 5 and <= 20 => $".G3 {notifyTime} Seconds .G5",
+                _ => $".G3 {notifyTime} {sanitizedContext} .G5"
+            };
         }
 
         /// <summary>
         /// Simulates the exact runtime execution footprint duration matching a specific message phrase sequence 
         /// under a localized speed modification configuration envelope.
         /// </summary>
-        /// <param name="message">The underlying string sequence targeted for structural timeline parsing measurements.</param>
-        /// <param name="speed">The playback velocity translation index factor mapped directly to vocal frequency pitches.</param>
-        /// <returns>A precise double floating-point scalar evaluation reflecting the calculated operational track length in seconds.</returns>
-        public static double CalculateCassieMessageDuration(string message, double speed = 0.99f)
+        public static double CalculateCassieMessageDuration(string message, double speed = 0.99)
         {
             string sanitizedMessage = message.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedMessage)) return 0.0;
@@ -131,6 +154,7 @@ namespace LabApi.Extensions
             modifiers.Pitch = (float)speed;
             return Announcer.CalculateDuration(sanitizedMessage, modifiers);
         }
+        #endregion
 
         #region Aggregation Overhead Loops (Zero-Allocation Internal Implementations)
         /// <summary>

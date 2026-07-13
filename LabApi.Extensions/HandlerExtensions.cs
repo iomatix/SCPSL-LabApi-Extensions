@@ -11,7 +11,7 @@ namespace LabApi.Extensions
         /// Systematically registers an aggregated inline array sequence of event handlers onto the central framework routing engine.
         /// </summary>
         /// <param name="handlers">The array layout tracking the target custom events handlers deployed into server memory spaces.</param>
-        public static void RegisterAll(params CustomEventsHandler[] handlers)
+        public static void RegisterAll(params CustomEventsHandler[] handlers) // TODO: IEnumerable + overload
         {
             if (handlers is null) return;
 
@@ -30,7 +30,7 @@ namespace LabApi.Extensions
         /// Systematically evicts and unregisters an aggregated inline array sequence of event handlers from the central framework routing engine.
         /// </summary>
         /// <param name="handlers">The array layout tracking the target custom events handlers cleared out from memory spaces.</param>
-        public static void UnregisterAll(params CustomEventsHandler[] handlers)
+        public static void UnregisterAll(params CustomEventsHandler[] handlers) // TODO: IEnumerable + overload
         {
             if (handlers is null) return;
 

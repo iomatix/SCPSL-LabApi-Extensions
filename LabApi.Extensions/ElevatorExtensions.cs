@@ -202,7 +202,7 @@ namespace LabApi.Extensions
         /// </summary>
         /// <param name="door">The target <see cref="Door"/> instance checked for associated elevator linkages.</param>
         /// <returns>The resolved <see cref="Elevator"/> wrapper if successfully mapped; otherwise, null.</returns>
-        public static Elevator GetElevator(this Door door)
+        public static Elevator GetElevator(this Door door) // TODO: SHOULD BE IN DoorExtensions
         {
             if (door == null) return null;
 
@@ -222,7 +222,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Gets all active elevators associated with the specified facility zone destination.
         /// </summary>
-        public static IEnumerable<Elevator> GetElevators(this FacilityZone zone)
+        public static IEnumerable<Elevator> GetElevators(this FacilityZone zone) // TODO: SHOULD BE IN FacilityZoneExtensions
         {
             foreach (Elevator elevator in Elevator.List)
             {
@@ -248,14 +248,14 @@ namespace LabApi.Extensions
         /// </summary>
         /// <param name="zone">The targeting operational <see cref="FacilityZone"/> configuration used to anchor the tracking evaluation query.</param>
         /// <returns>An enumerable collection containing all matching <see cref="Elevator"/> units intersecting the target layout zone bounds.</returns>
-        public static IEnumerable<Elevator> GetElevatorsInZone(FacilityZone zone) => zone.GetElevators();
+        public static IEnumerable<Elevator> GetElevatorsInZone(FacilityZone zone) => zone.GetElevators(); // TODO: SHOULD BE IN FacilityZoneExtensions
 
         /// <summary>
         /// Isolates and filters the global elevator tracking arrays to return only the specific units structurally bridging into the target room.
         /// </summary>
         /// <param name="room">The anchoring <see cref="Room"/> instance tracking local destination mappings.</param>
         /// <returns>An enumerable sequence tracking matching elevator units linked directly to the specified layout node mapping.</returns>
-        public static IEnumerable<Elevator> GetElevatorsConnectedToRoom(this Room room)
+        public static IEnumerable<Elevator> GetElevatorsConnectedToRoom(this Room room) // TODO: SHOULD BE IN RoomExtensions
         {
             if (room is null) yield break;
 
@@ -278,7 +278,7 @@ namespace LabApi.Extensions
         /// </summary>
         /// <param name="door">The target <see cref="Door"/> instance checked against cabin proximity envelopes.</param>
         /// <returns><c>true</c> if the cabin is present at the door's floor level; otherwise, <c>false</c>.</returns>
-        public static bool IsElevatorAtDoorLevel(this Door door)
+        public static bool IsElevatorAtDoorLevel(this Door door) // TODO: SHOULD BE IN DoorExtensions
         {
             var elevator = door.GetElevator();
             if (elevator?.Base == null) return false;
@@ -292,7 +292,7 @@ namespace LabApi.Extensions
         /// </summary>
         /// <param name="room">The source <see cref="Room"/> spatial structure queried for mechanical transition operations.</param>
         /// <returns><c>true</c> if an elevator is bound to the room and currently processing an active mechanical cycle; otherwise, <c>false</c>.</returns>
-        public static bool IsActiveInRoom(this Room room)
+        public static bool IsActiveInRoom(this Room room) // TODO: SHOULD BE IN RoomExtensions
         {
             if (room is null) return false;
 
@@ -312,7 +312,7 @@ namespace LabApi.Extensions
         /// </summary>
         /// <param name="player">The target <see cref="Player"/> entity execution node evaluated for ongoing spatial tracking containment.</param>
         /// <returns><c>true</c> if the player entity is verified inside an elevator room boundary; otherwise, <c>false</c>.</returns>
-        public static bool IsInExecutiveElevator(this Player player)
+        public static bool IsInExecutiveElevator(this Player player) // TODO: SHOULD BE IN PlayerExtensions
         {
             Room pRoom = player?.Room;
             if (pRoom is null) return false;
@@ -333,7 +333,7 @@ namespace LabApi.Extensions
         /// Enforces absolute structural lockdowns on all elevator bulkhead vectors tracking within the requested facility zone.
         /// </summary>
         /// <param name="zone">The targeting structural <see cref="FacilityZone"/> layout block assigned for immediate passage suppression.</param>
-        public static void LockElevators(this FacilityZone zone)
+        public static void LockElevators(this FacilityZone zone) // TODO: SHOULD BE IN FacilityZoneExtensions
         {
             foreach (var elevator in zone.GetElevators()) elevator.LockAllDoors();
         }
@@ -342,7 +342,7 @@ namespace LabApi.Extensions
         /// Enforces absolute structural lockdowns on all elevator bulkhead vectors tracking within the requested facility zone.
         /// Retained for backward compatibility.
         /// </summary>
-        public static void LockElevatorsInZone(FacilityZone zone) => zone.LockElevators();
+        public static void LockElevatorsInZone(FacilityZone zone) => zone.LockElevators(); // TODO: SHOULD BE IN FacilityZoneExtensions
 
         /// <summary>
         /// Restores normal passage access and lifts all operational bulkhead locking restrictions across elevator units within the specified zone.
@@ -350,14 +350,14 @@ namespace LabApi.Extensions
         /// <param name="zone">The targeting structural <see cref="FacilityZone"/> layout block assigned for operational recovery routines.</param>
         public static void UnlockElevators(this FacilityZone zone)
         {
-            foreach (var elevator in zone.GetElevators()) elevator.UnlockAllDoors();
+            foreach (var elevator in zone.GetElevators()) elevator.UnlockAllDoors(); // TODO: SHOULD BE IN FacilityZoneExtensions
         }
 
         /// <summary>
         /// Restores normal passage access and lifts all operational bulkhead locking restrictions across elevator units within the specified zone.
         /// Retained for backward compatibility.
         /// </summary>
-        public static void UnlockElevatorsInZone(FacilityZone zone) => zone.UnlockElevators();
+        public static void UnlockElevatorsInZone(FacilityZone zone) => zone.UnlockElevators(); // TODO: SHOULD BE IN FacilityZoneExtensions
 
         /// <summary>
         /// Processes a localized, probability-driven evaluation sweep across all elevators bound to a room, 
@@ -367,7 +367,7 @@ namespace LabApi.Extensions
         /// <param name="affectChance">The fractional probability value constraint ceiling checked via thread-safe random state generators.</param>
         /// <param name="duration">The execution lifecycle tracking timeframe in seconds allocated for downstream manipulation routines.</param>
         /// <param name="elevatorAction">The specialized modification action callback graph deployed if probability check criteria are successfully met.</param>
-        public static void HandleElevatorsForRoom(this Room room, float affectChance, float duration, Action<Elevator> elevatorAction)
+        public static void HandleElevatorsForRoom(this Room room, float affectChance, float duration, Action<Elevator> elevatorAction) // TODO: SHOULD BE IN RoomExtensions
         {
             if (affectChance <= 0f || affectChance > 100f || elevatorAction == null) return;
 

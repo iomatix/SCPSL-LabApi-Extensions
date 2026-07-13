@@ -446,7 +446,7 @@ namespace LabApi.Extensions
             room.SetLightsColor(color);
 
             // Performance Optimization: Cache IEnumerable to array ONCE before entering the time-critical loop
-            var controllers = Enumerable.ToArray(room.AllLightControllers);
+            var controllers = Enumerable.ToArray(room.AllLightControllers); // TODO: Change to is List<LightController> Loop
             int controllerCount = controllers.Length;
 
             for (int i = 0; i < flickers; i++)

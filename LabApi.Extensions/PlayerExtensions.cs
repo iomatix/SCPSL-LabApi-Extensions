@@ -237,6 +237,28 @@ namespace LabApi.Extensions
         }
 
         /// <summary>
+        /// Triggers the flicker coroutine loop for a collection of players.
+        /// </summary>
+        public static void FlickerHeldLightSource(this IEnumerable<Player> players, int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null)
+        {
+            if (players is null) return;
+
+            foreach (Player player in players)
+            {
+                if (player is not null)
+                {
+                    Timing.RunCoroutine(player.FlickerHeldLightSourceCoroutine(flickerCount, delayPerFlicker, forceOff, onTickFeedback));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Triggers the flicker coroutine loop for an inline array of players.
+        /// </summary>
+        public static void FlickerHeldLightSource(int flickerCount, float delayPerFlicker, bool forceOff = false, Action<Player, bool> onTickFeedback = null, params Player[] players)
+            => FlickerHeldLightSource(players, flickerCount, delayPerFlicker, forceOff, onTickFeedback);
+
+        /// <summary>
         /// Verifies if the player is actively emitting light via flashlights or firearm attachments.
         /// </summary>
         public static bool HasActiveLightSource(this Player player)

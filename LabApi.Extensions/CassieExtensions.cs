@@ -122,7 +122,7 @@ namespace LabApi.Extensions
         /// <param name="message">The underlying string sequence targeted for structural timeline parsing measurements.</param>
         /// <param name="speed">The playback velocity translation index factor mapped directly to vocal frequency pitches.</param>
         /// <returns>A precise double floating-point scalar evaluation reflecting the calculated operational track length in seconds.</returns>
-        public static double CalculateCassieMessageDuration(string message, double speed = 0.95)
+        public static double CalculateCassieMessageDuration(string message, double speed = 0.99f)
         {
             string sanitizedMessage = message.SanitizeCassieString();
             if (string.IsNullOrEmpty(sanitizedMessage)) return 0.0;
@@ -160,7 +160,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Aggregates linear collection playback footprints over a zero-allocation sequential iteration map.
         /// </summary>
-        public static double CalculateTotalMessagesDurations(IEnumerable<string> messages, float defaultSpeed = 1f)
+        public static double CalculateTotalMessagesDurations(IEnumerable<string> messages, float defaultSpeed = 0.99f)
         {
             if (messages is null) return 0.0;
 

@@ -20,17 +20,22 @@ namespace LabApi.Extensions
 
         #region Single Message Dispatchers
         /// <summary>
-        /// Dispatches a glitched CASSIE announcement and returns its estimated playback duration using the provided modifiers.
+        /// Glitchifies the specified message internally and dispatches the announcement, returning its playback duration.
         /// </summary>
-        public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance, string glitchifierOutput, CassiePlaybackModifiers modifiers = default)
+        public static double DispatchGlitchyMessage(string message, float glitchChance, float jamChance, CassiePlaybackModifiers modifiers = default)
         {
-            string sanitizedOutput = glitchifierOutput.SanitizeCassieString();
-            if (string.IsNullOrEmpty(sanitizedOutput)) return 0.0;
+            string sanitizedInput = message.SanitizeCassieString();
+            if (string.IsNullOrEmpty(sanitizedInput)) return 0.0;
 
             try
             {
-                Announcer.Message($"{sanitizedOutput}", string.Empty, playBackground: false);
-                return Announcer.CalculateDuration(sanitizedOutput, modifiers);
+                // Encapuslate the glitchification internally to eliminate duplicate API arguments
+                string glitchedMessage = CassieGlitchifier.Glitchify(sanitizedInput, glitchChance, jamChance);
+
+                // We set glMessageitchScale to 0f because the text already contains explicit glitch/jam tokens
+                Announcer.Message(glitchedMessage, string.Empty, playBackground: false, glitchScale: 0f);
+
+                return Announcer.CalculateDuration(glitchedMessage, modifiers);
             }
             catch (Exception ex)
             {

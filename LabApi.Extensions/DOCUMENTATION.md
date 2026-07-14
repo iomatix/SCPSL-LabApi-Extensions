@@ -1152,6 +1152,18 @@ public static bool IsWithinRadius(this Room room, Vector3 position, float radius
 public static IEnumerator<float> FlickerLightsCoroutine(this Room room, Color color, float duration, float frequency)
 ```
 
+### 🔹 `FlickerLights()`
+**Description:** Starts a flicker animation on multiple rooms.
+```csharp
+public static void FlickerLights( this IEnumerable<Room> rooms, Color color, float duration, float frequency) => rooms?.ForEach(r => { if (r != null) Timing.RunCoroutine(r.FlickerLightsCoroutine(color, duration, frequency));
+```
+
+### 🔹 `FlickerLights()`
+**Description:** Starts a flicker animation on multiple rooms (params overload).
+```csharp
+public static void FlickerLights( Color color, float duration, float frequency, params Room[] rooms) => ((IEnumerable<Room>)rooms).FlickerLights(color, duration, frequency);
+```
+
 ---
 
 ## 📦 Class: StringExtensions
@@ -1344,6 +1356,18 @@ public static void TurnOnLights(params FacilityZone[] zones) => ((IEnumerable<Fa
 **Description:** Performs a flicker animation on zone lights.
 ```csharp
 public static IEnumerator<float> FlickerLightsCoroutine(this FacilityZone zone, Color color, float duration, float frequency)
+```
+
+### 🔹 `FlickerLights()`
+**Description:** Starts a flicker animation on multiple zones.
+```csharp
+public static void FlickerLights( this IEnumerable<FacilityZone> zones, Color color, float duration, float frequency) => zones?.ForEach(z => { Timing.RunCoroutine(z.FlickerLightsCoroutine(color, duration, frequency));
+```
+
+### 🔹 `FlickerLights()`
+**Description:** Starts a flicker animation on multiple zones (params overload).
+```csharp
+public static void FlickerLights( Color color, float duration, float frequency, params FacilityZone[] zones) => ((IEnumerable<FacilityZone>)zones).FlickerLights(color, duration, frequency);
 ```
 
 ---

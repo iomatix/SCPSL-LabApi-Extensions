@@ -354,7 +354,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Executes a flicker animation on the room lights.
         /// </summary>
-        public static IEnumerator<float> FlickerLightsCoroutine(this Room room, Color color, float duration, float frequency, string coroutineTag = "LabApi.Extensions-flickerLights")
+        public static IEnumerator<float> FlickerLightsCoroutine(this Room room, Color color, float duration, float frequency)
         {
             if (room?.AllLightControllers is null)
                 yield break;
@@ -399,7 +399,7 @@ namespace LabApi.Extensions
             => rooms?.ForEach(r =>
             {
                 if (r != null)
-                    Timing.RunCoroutine(r.FlickerLightsCoroutine(color, duration, frequency, coroutineTag));
+                    Timing.RunCoroutine(r.FlickerLightsCoroutine(color, duration, frequency), coroutineTag);
             });
 
         /// <summary>

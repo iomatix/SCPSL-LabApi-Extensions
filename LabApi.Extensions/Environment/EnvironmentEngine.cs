@@ -54,27 +54,27 @@ namespace LabApi.Extensions.Environment
         /// <param name="frequency">The frequency parameter coefficient determining how many flash cycles execute per second layer.</param>
         /// <param name="color">The structural <see cref="UnityEngine.Color"/> vector mapping layout applied during the active illumination state pulses.</param>
         /// <param name="coroutineTag">An optional custom tracking token string assigned to bound the underlying MEC handle context safely.</param>
-        public static void StartZoneFlicker(MapGeneration.FacilityZone zone, float duration, float frequency, UnityEngine.Color color, string coroutineTag = "LabApi.Extensions.Environment-flickerLights")
+        public static void StartZoneFlicker(MapGeneration.FacilityZone zone, float duration, float frequency, Color color, string coroutineTag = "LabApi.Extensions.Environment-flickerLights")
         {
-            MEC.Timing.RunCoroutine(ExecuteZoneFlickerRoutine(zone, duration, frequency, color), coroutineTag);
+            Timing.RunCoroutine(ExecuteZoneFlickerRoutine(zone, duration, frequency, color), coroutineTag);
         }
 
-        private static System.Collections.Generic.IEnumerator<float> ExecuteZoneFlickerRoutine(MapGeneration.FacilityZone zone, float duration, float frequency, UnityEngine.Color color)
+        private static System.Collections.Generic.IEnumerator<float> ExecuteZoneFlickerRoutine(MapGeneration.FacilityZone zone, float duration, float frequency, Color color)
         {
             float interval = 1f / frequency;
-            int flickers = UnityEngine.Mathf.RoundToInt(duration / interval);
+            int flickers = Mathf.RoundToInt(duration / interval);
 
-            LabApi.Features.Wrappers.Map.SetColorOfLights(color, zone);
+            Map.SetColorOfLights(color, zone);
 
             for (int i = 0; i < flickers; i++)
             {
-                LabApi.Features.Wrappers.Map.TurnOffLights(interval * 0.5f, zone);
-                yield return MEC.Timing.WaitForSeconds(interval * 0.5f);
-                LabApi.Features.Wrappers.Map.TurnOnLights(zone);
-                yield return MEC.Timing.WaitForSeconds(interval * 0.5f);
+                Map.TurnOffLights(interval * 0.5f, zone);
+                yield return Timing.WaitForSeconds(interval * 0.5f);
+                Map.TurnOnLights(zone);
+                yield return Timing.WaitForSeconds(interval * 0.5f);
             }
 
-            LabApi.Features.Wrappers.Map.ResetColorOfLights(zone);
+            Map.ResetColorOfLights(zone);
         }
     }
 }

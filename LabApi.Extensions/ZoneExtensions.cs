@@ -156,7 +156,7 @@ namespace LabApi.Extensions
         /// <summary>
         /// Performs a flicker animation on zone lights.
         /// </summary>
-        public static IEnumerator<float> FlickerLightsCoroutine(this FacilityZone zone, Color color, float duration, float frequency, string coroutineTag = "LabApi.Extensions-flickerLights")
+        public static IEnumerator<float> FlickerLightsCoroutine(this FacilityZone zone, Color color, float duration, float frequency)
         {
             float interval = 1f / frequency.LimitMin(0.1f);
             float half = interval * 0.5f;
@@ -187,7 +187,7 @@ namespace LabApi.Extensions
             string coroutineTag = "LabApi.Extensions-flickerLights")
             => zones?.ForEach(z =>
             {
-                Timing.RunCoroutine(z.FlickerLightsCoroutine(color, duration, frequency, coroutineTag));
+                Timing.RunCoroutine(z.FlickerLightsCoroutine(color, duration, frequency), coroutineTag);
             });
 
         /// <summary>

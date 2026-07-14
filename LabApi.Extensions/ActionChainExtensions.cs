@@ -71,7 +71,7 @@ namespace LabApi.Extensions
         /// <param name="coroutineTag">Optional tag for managing the coroutine.</param>
         public CoroutineHandle Run(string coroutineTag = null)
         {
-            var handle = Timing.RunCoroutine(ExecutePipelineRoutine());
+            var handle = Timing.RunCoroutine(ExecutePipelineRoutine(), "LabApi.Extensions-ActionChain");
 
             if (!string.IsNullOrEmpty(coroutineTag))
                 handle.Tag = coroutineTag;

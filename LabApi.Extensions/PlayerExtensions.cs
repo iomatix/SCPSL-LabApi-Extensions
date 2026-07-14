@@ -432,10 +432,11 @@ public static class PlayerExtensions
         int flickerCount,
         float delayPerFlicker,
         bool forceOff = false,
-        Action<Player, bool> onTickFeedback = null)
+        Action<Player, bool> onTickFeedback = null,
+        string coroutineTag = "LabApi.Extensions-playerFlickerLights")
     => players?.ForEach(p =>
     {
-        if (p != null) Timing.RunCoroutine(p.FlickerHeldLightSourceCoroutine(flickerCount, delayPerFlicker, forceOff, onTickFeedback));
+        if (p != null) Timing.RunCoroutine(p.FlickerHeldLightSourceCoroutine(flickerCount, delayPerFlicker, forceOff, onTickFeedback), coroutineTag);
     });
 
 
@@ -447,8 +448,9 @@ public static class PlayerExtensions
         float delayPerFlicker,
         bool forceOff = false,
         Action<Player, bool> onTickFeedback = null,
+        string coroutineTag = "LabApi.Extensions-playerFlickerLights",
         params Player[] players)
-        => ((IEnumerable<Player>)players).FlickerHeldLightSource(flickerCount, delayPerFlicker, forceOff, onTickFeedback);
+        => ((IEnumerable<Player>)players).FlickerHeldLightSource(flickerCount, delayPerFlicker, forceOff, onTickFeedback, coroutineTag);
 
     #endregion
 

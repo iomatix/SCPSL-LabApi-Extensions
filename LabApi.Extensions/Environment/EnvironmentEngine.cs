@@ -18,7 +18,7 @@ namespace LabApi.Extensions.Environment
         /// <param name="pulseInterval">The temporal delay spacing index in seconds indicating how rapidly the strobe oscillations occur.</param>
         /// <param name="alertColor">The target <see cref="Color"/> vector applied to the lighting controllers during the active phase pulse.</param>
         /// <param name="masterTag">A unique tracking string token assigned to tag the underlying MEC coroutine layers for clean structural memory cleanup.</param>
-        public static void StartEmergencyStrobe(float totalDuration, float pulseInterval, Color alertColor, string masterTag = "Emergency-Strobe")
+        public static void StartEmergencyStrobe(float totalDuration, float pulseInterval, Color alertColor, string masterTag = "LabApi.Extensions.Environment-strobeLights")
         {
             for (float t = 0f; t < totalDuration; t += pulseInterval)
             {
@@ -54,7 +54,7 @@ namespace LabApi.Extensions.Environment
         /// <param name="frequency">The frequency parameter coefficient determining how many flash cycles execute per second layer.</param>
         /// <param name="color">The structural <see cref="UnityEngine.Color"/> vector mapping layout applied during the active illumination state pulses.</param>
         /// <param name="coroutineTag">An optional custom tracking token string assigned to bound the underlying MEC handle context safely.</param>
-        public static void StartZoneFlicker(MapGeneration.FacilityZone zone, float duration, float frequency, UnityEngine.Color color, string coroutineTag = "Zone-Flicker")
+        public static void StartZoneFlicker(MapGeneration.FacilityZone zone, float duration, float frequency, UnityEngine.Color color, string coroutineTag = "LabApi.Extensions.Environment-flickerLights")
         {
             MEC.Timing.RunCoroutine(ExecuteZoneFlickerRoutine(zone, duration, frequency, color), coroutineTag);
         }

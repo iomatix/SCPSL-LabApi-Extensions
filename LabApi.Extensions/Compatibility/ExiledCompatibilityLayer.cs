@@ -173,7 +173,9 @@
         {
             try
             {
-                // FIX: Optimized directory check to use robust DirectoryInfo attributes.
+                if (!Directory.Exists(path))
+                    return false;
+
                 var info = new DirectoryInfo(path);
                 return (info.Attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
             }

@@ -85,6 +85,49 @@ namespace LabApi.Extensions
                 action(item, state);
             }
         }
+
+        /// <summary>
+        /// Returns true if all items in the collection match the specified state-passing predicate.
+        /// Features optimized zero-allocation fast-paths with immediate early-exit on mismatch.
+        /// </summary>
+        public static bool All<T, TState>(this IEnumerable<T> source, TState state, Func<T, TState, bool> predicate)
+        {
+            if (source == null || predicate == null)
+                return false;
+
+            // Fast path for arrays - 0 allocations, highly optimized by JIT, early-exit
+            if (source is T[] array)
+            {
+                int count = array.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    if (!predicate(array[i], state))
+                        return false;
+                }
+                return true;
+            }
+
+            // Fast path for Lists - 0 allocations, avoids Enumerator boxing, early-exit
+            if (source is List<T> list)
+            {
+                int count = list.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    if (!predicate(list[i], state))
+                        return false;
+                }
+                return true;
+            }
+
+            // Fallback for general collections
+            foreach (var item in source)
+            {
+                if (!predicate(item, state))
+                    return false;
+            }
+
+            return true;
+        }
         #region Throttle Model (Stores Last Execution Time)
 
         /// <summary>

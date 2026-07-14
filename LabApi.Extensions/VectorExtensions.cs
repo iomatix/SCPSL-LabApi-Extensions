@@ -1,4 +1,5 @@
 ﻿using LabApi.Extensions.Misc;
+using LabApi.Features.Wrappers;
 using System;
 using UnityEngine;
 
@@ -144,6 +145,15 @@ namespace LabApi.Extensions
             Vector3 randomDirection = new Vector3(x, y, z);
             return randomDirection.GetUpwardReflectedVector(0.707f) * magnitude;
         }
+
+        #endregion
+
+        #region 
+        /// <summary>
+        /// Resolves and returns the room at this specific 3D spatial coordinate vector.
+        /// </summary>
+        public static Room GetRoom(this Vector3 position) =>
+            Room.GetRoomAtPosition(position);
 
         #endregion
 

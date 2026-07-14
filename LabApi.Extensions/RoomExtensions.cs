@@ -327,12 +327,6 @@ namespace LabApi.Extensions
         #region Spatial Helpers
 
         /// <summary>
-        /// Returns the room at the given world position.
-        /// </summary>
-        public static Room GetRoom(this Vector3 position) =>
-            Room.GetRoomAtPosition(position);
-
-        /// <summary>
         /// Returns the distance from the room center to the given position.
         /// </summary>
         public static float GetDistanceTo(this Room room, Vector3 position)

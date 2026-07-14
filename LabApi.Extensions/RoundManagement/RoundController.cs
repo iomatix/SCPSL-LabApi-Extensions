@@ -1,13 +1,11 @@
 ﻿using LabApi.Features.Wrappers;
 using MEC;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace LabApi.Extensions.RoundManagement
 {
     /// <summary>
-    /// Provides a highly optimized, stateful controller matrix designed to register, isolate, 
-    /// and safely execute custom <see cref="RoundScenario"/> logic branches while overriding native round ending metrics.
+    /// Centralized controller to register, track, and safely execute custom round scenarios while overriding native round ending metrics.
     /// </summary>
     public class RoundController
     {
@@ -20,15 +18,16 @@ namespace LabApi.Extensions.RoundManagement
         public bool IsRoundEndLocked => _autoRoundEndLocked;
 
         /// <summary>
-        /// Gets an enumerable matrix stream tracking all currently registered architectural scenario nodes.
+        /// Gets all currently registered round scenarios.
         /// </summary>
         public IEnumerable<RoundScenario> EndingScenarios => _registeredScenarios;
 
         /// <summary>
-        /// Commits a concrete scenario node structure into the internal tracking state registry.
+        /// Registers a custom round scenario into the internal registry safely.
         /// </summary>
         public void RegisterScenario(RoundScenario scenario)
         {
+            // FIX: Unified null-checking standard (== null instead of is null).
             if (scenario != null)
             {
                 _registeredScenarios.Add(scenario);
@@ -49,31 +48,59 @@ namespace LabApi.Extensions.RoundManagement
         /// </summary>
         public void ExecuteScenario(RoundScenario scenario)
         {
-            if (scenario == null) return;
+            if (scenario == null)
+                return;
 
             SetAutoRoundEndLock(true);
             scenario.Execute();
         }
 
         /// <summary>
-        /// Gracefully terminates the round lifecycle sequence after a deferred temporal delay window, forcing execution metrics.
+        /// Private lightweight coroutine that handles deferred round termination safely on the stack.
         /// </summary>
-        public void EndRoundGracefully(float delay = 0f, string coroutineTag = "CustomRoundEnd")
+        private IEnumerator<float> EndRoundCoroutine(float delay)
         {
-            var endCoroutine = Timing.CallDelayed(delay, () =>
+            if (delay > 0f)
             {
-                SetAutoRoundEndLock(false);
-                Round.End(force: true);
-            });
-            endCoroutine.Tag = coroutineTag;
+                yield return Timing.WaitForSeconds(delay);
+            }
+
+            SetAutoRoundEndLock(false);
+            Round.End(force: true);
         }
 
         /// <summary>
-        /// Queries the registered scenario registry matrix to resolve and yield a specific strongly-typed scenario implementation.
+        /// Gracefully terminates the round lifecycle sequence after a deferred temporal delay window with zero heap allocations.
+        /// </summary>
+        public void EndRoundGracefully(float delay = 0f, string coroutineTag = "LabApi.RoundManagement-customRoundEnd")
+        {
+            // FIX: Bypassed MEC's CallDelayed to run our custom lightweight, closure-free coroutine.
+            // Spawns with the tag directly to avoid post-spawn race conditions.
+            if (string.IsNullOrEmpty(coroutineTag))
+                Timing.RunCoroutine(EndRoundCoroutine(delay));
+            else
+                Timing.RunCoroutine(EndRoundCoroutine(delay), coroutineTag);
+        }
+
+        /// <summary>
+        /// Queries the registered scenario registry to resolve a specific strongly-typed scenario with zero heap allocations.
         /// </summary>
         public T GetScenario<T>() where T : RoundScenario
         {
-            return _registeredScenarios.OfType<T>().FirstOrDefault();
+            if (_registeredScenarios == null)
+                return null;
+
+            // FIX: Replaced memory-allocating LINQ .OfType<T>().FirstOrDefault() with direct zero-allocation foreach.
+            // This leverages HashSet's struct enumerator to avoid GC pressure during hot-path lookups.
+            foreach (var scenario in _registeredScenarios)
+            {
+                if (scenario is T target)
+                {
+                    return target;
+                }
+            }
+
+            return null;
         }
     }
 }

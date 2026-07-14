@@ -1,80 +1,94 @@
 ﻿using LabApi.Features.Wrappers;
 using MEC;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LabApi.Extensions.Environment
 {
     /// <summary>
-    /// Provides standalone, high-performance asynchronous orchestration engines designed to manipulate 
-    /// global environmental states, structural alarms, and multi-stage facility strobe light sequences.
+    /// Provides environmental manipulation helpers.
     /// </summary>
+    [Obsolete("EnvironmentEngine is deprecated. Its members have been optimized and merged into specialized extension classes. Use ZoneLightingExtensions for zone-specific operations.", false)]
     public static class EnvironmentEngine
     {
-        /// <summary>
-        /// Launches a non-blocking background asynchronous coroutine loop that flashes the global facility lighting grid 
-        /// between a targeted alert color configuration and a total blackout pulse state.
-        /// </summary>
-        /// <param name="totalDuration">The total lifespan tracking execution timeframe in seconds for the strobe event sequence.</param>
-        /// <param name="pulseInterval">The temporal delay spacing index in seconds indicating how rapidly the strobe oscillations occur.</param>
-        /// <param name="alertColor">The target <see cref="Color"/> vector applied to the lighting controllers during the active phase pulse.</param>
-        /// <param name="masterTag">A unique tracking string token assigned to tag the underlying MEC coroutine layers for clean structural memory cleanup.</param>
-        public static void StartEmergencyStrobe(float totalDuration, float pulseInterval, Color alertColor, string masterTag = "LabApi.Extensions.Environment-strobeLights")
-        {
-            for (float t = 0f; t < totalDuration; t += pulseInterval)
-            {
-                float initialDelay = t;
-                var masterCoroutine = Timing.CallDelayed(initialDelay, () =>
-                {
-                    // Phase 1: Force alert illumination vector color mapping
-                    Map.SetColorOfLights(alertColor);
-
-                    // Phase 2: Intermediary collapse into temporary darkness
-                    var subCoroutineOff = Timing.CallDelayed(pulseInterval * 0.25f, () => Map.TurnOffLights());
-                    subCoroutineOff.Tag = masterTag;
-
-                    // Phase 3: Restore illumination grid and transition into deep ambient shadows
-                    var subCoroutineOn = Timing.CallDelayed(pulseInterval * 0.63f, () =>
-                    {
-                        Map.TurnOnLights();
-                        Map.SetColorOfLights(Color.black);
-                    });
-                    subCoroutineOn.Tag = masterTag;
-                });
-
-                masterCoroutine.Tag = masterTag;
-            }
-        }
+        #region Emergency Strobe (Legacy Bridge - Fully Optimized Under the Hood)
 
         /// <summary>
-        /// Launches a non-blocking background asynchronous coroutine loop that flickers the illumination grid 
-        /// of a specific facility zone at a given frequency baseline before reverting to pristine spectrum maps.
+        /// Private lightweight coroutine that drives the entire strobe sequence using a single state loop.
+        /// Replaces the legacy garbage-heavy nested CallDelayed scheduling system.
         /// </summary>
-        /// <param name="zone">The targeted structural <see cref="MapGeneration.FacilityZone"/> boundary context undergoing illumination modulation.</param>
-        /// <param name="duration">The total active operational execution lifespan tracking window in seconds for the strobe loop.</param>
-        /// <param name="frequency">The frequency parameter coefficient determining how many flash cycles execute per second layer.</param>
-        /// <param name="color">The structural <see cref="UnityEngine.Color"/> vector mapping layout applied during the active illumination state pulses.</param>
-        /// <param name="coroutineTag">An optional custom tracking token string assigned to bound the underlying MEC handle context safely.</param>
-        public static void StartZoneFlicker(MapGeneration.FacilityZone zone, float duration, float frequency, Color color, string coroutineTag = "LabApi.Extensions.Environment-flickerLights")
+        private static IEnumerator<float> EmergencyStrobeCoroutine(float totalDuration, float pulseInterval, Color alertColor)
         {
-            Timing.RunCoroutine(ExecuteZoneFlickerRoutine(zone, duration, frequency, color), coroutineTag);
-        }
+            float elapsed = 0f;
 
-        private static System.Collections.Generic.IEnumerator<float> ExecuteZoneFlickerRoutine(MapGeneration.FacilityZone zone, float duration, float frequency, Color color)
-        {
-            float interval = 1f / frequency;
-            int flickers = Mathf.RoundToInt(duration / interval);
+            // Cache interval math on the stack to prevent redundant runtime division
+            float phase1Duration = pulseInterval * 0.25f;
+            float phase2Duration = pulseInterval * 0.38f; // (0.63 - 0.25)
+            float phase3Duration = pulseInterval * 0.37f; // (1.00 - 0.63)
 
-            Map.SetColorOfLights(color, zone);
-
-            for (int i = 0; i < flickers; i++)
+            while (elapsed < totalDuration)
             {
-                Map.TurnOffLights(interval * 0.5f, zone);
-                yield return Timing.WaitForSeconds(interval * 0.5f);
-                Map.TurnOnLights(zone);
-                yield return Timing.WaitForSeconds(interval * 0.5f);
+                // Phase 1: Force alert illumination vector color mapping
+                Map.SetColorOfLights(alertColor);
+                yield return Timing.WaitForSeconds(phase1Duration);
+
+                // Phase 2: Intermediary collapse into temporary darkness
+                Map.TurnOffLights();
+                yield return Timing.WaitForSeconds(phase2Duration);
+
+                // Phase 3: Restore illumination grid and transition into deep ambient shadows
+                Map.TurnOnLights();
+                Map.SetColorOfLights(Color.black);
+                yield return Timing.WaitForSeconds(phase3Duration);
+
+                elapsed += pulseInterval;
             }
 
-            Map.ResetColorOfLights(zone);
+            // Restore defaults at the end of the strobe event
+            Map.ResetColorOfLights();
         }
+
+        /// <summary>
+        /// Launches a background strobe loop.
+        /// </summary>
+        [Obsolete("StartEmergencyStrobe scheduled thousands of nested coroutines and is highly deprecated. It has been rewritten internally to use a single lightweight state loop, but you should migrate your systems to clean, customized coroutines.", false)]
+        public static void StartEmergencyStrobe(
+            float totalDuration,
+            float pulseInterval,
+            Color alertColor,
+            string masterTag = "LabApi.Extensions.Environment-strobeLights")
+        {
+            if (pulseInterval <= 0.05f)
+                pulseInterval = 0.1f; // Prevent division/infinite loop locks
+
+            // FIX: Bypassed the horrible "scheduling bomb" loop. 
+            // Now runs exactly 1 lightweight coroutine under the hood to completely protect the server.
+            if (string.IsNullOrEmpty(masterTag))
+                Timing.RunCoroutine(EmergencyStrobeCoroutine(totalDuration, pulseInterval, alertColor));
+            else
+                Timing.RunCoroutine(EmergencyStrobeCoroutine(totalDuration, pulseInterval, alertColor), masterTag);
+        }
+
+        #endregion
+
+        #region Zone Flicker (Legacy Bridge - Redirects to ZoneLightingExtensions)
+
+        /// <summary>
+        /// Launches a non-blocking background asynchronous coroutine loop that flickers the illumination grid.
+        /// </summary>
+        [Obsolete("StartZoneFlicker() is deprecated. Please migrate to ZoneLightingExtensions.FlickerLights() which is fully optimized and allocation-free.", false)]
+        public static void StartZoneFlicker(
+            MapGeneration.FacilityZone zone,
+            float duration,
+            float frequency,
+            Color color,
+            string coroutineTag = "LabApi.Extensions.Environment-flickerLights")
+        {
+            // FIX: DRY compliance. Completely bypassed duplicate routine code by routing directly to our newly optimized extensions.
+            ZoneLightingExtensions.FlickerLights(new[] { zone }, color, duration, frequency, coroutineTag);
+        }
+
+        #endregion
     }
 }

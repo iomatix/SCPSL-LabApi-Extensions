@@ -3,9 +3,8 @@
 namespace LabApi.Extensions.Misc
 {
     /// <summary>
-    /// Provides an enterprise-grade, high-performance pseudo-random number generator (PRNG) engine.
-    /// Utilizes <see cref="ThreadStaticAttribute"/> isolation to guarantee absolute thread-safety and eliminate 
-    /// concurrency lock contention across asynchronous server coroutines and parallel execution threads.
+    /// Thread-safe utility for generating pseudo-random numbers.
+    /// Uses ThreadStatic isolation to eliminate concurrency locks across asynchronous coroutines and threads.
     /// </summary>
     public static class SafeRandom
     {
@@ -13,46 +12,23 @@ namespace LabApi.Extensions.Misc
         private static Random _localRandom;
 
         /// <summary>
-        /// Gets the thread-isolated <see cref="Random"/> instance allocated specifically to the executing thread's local storage block.
-        /// Lazily initializes a unique seed mapping utilizing a distinct structural GUID hash sequence to prevent seed synchronization anomalies.
+        /// Gets the thread-isolated Random instance, lazily initializing it with a unique seed.
         /// </summary>
-        private static Random ThreadRandom => _localRandom ??= new(Guid.NewGuid().GetHashCode());
+        private static Random ThreadRandom => _localRandom ??= new Random(Guid.NewGuid().GetHashCode());
 
         /// <summary>
-        /// Generates a thread-safe pseudo-random signed 32-bit integer within a concrete range boundary.
+        /// Generates a thread-safe random integer between min (inclusive) and max (exclusive).
         /// </summary>
-        /// <param name="min">The inclusive lower historical bound constraint of the generated integer value.</param>
-        /// <param name="max">The exclusive upper historical bound constraint of the generated integer value.</param>
-        /// <returns>A signed 32-bit integer greater than or equal to <paramref name="min"/> and strictly less than <paramref name="max"/>.</returns>
         public static int Next(int min, int max) => ThreadRandom.Next(min, max);
 
         /// <summary>
-        /// Generates a thread-safe pseudo-random double-precision floating-point scalar token tracking between 0.0 and 1.0.
+        /// Generates a thread-safe random double between 0.0 and 1.0.
         /// </summary>
-        /// <returns>A double-precision floating-point scalar value greater than or equal to 0.0, and strictly less than 1.0.</returns>
         public static double NextDouble() => ThreadRandom.NextDouble();
 
         /// <summary>
-        /// Computes a single-precision random floating-point scalar value mapped across a localized linear scaling envelope 
-        /// bridging the specified minimum and maximum mathematical limits.
+        /// Generates a thread-safe random float between min (inclusive) and max (inclusive).
         /// </summary>
-        /// <param name="min">The inclusive lower boundary limit coefficient assigned for range calculations.</param>
-        /// <param name="max">The inclusive upper boundary limit coefficient assigned for range calculations.</param>
-        /// <returns>A single-precision floating-point scalar value falling within the explicit tracking boundaries of <paramref name="min"/> and <paramref name="max"/>.</returns>
-        public static float Range(float min, float max) => (float)(NextDouble() * (max - min) + min);
-
-        /// <summary>
-        /// Performs a thread-safe probability evaluation roll against a specified percentage value (0.0 to 100.0).
-        /// </summary>
-        /// <param name="chancePercentage">The success chance threshold expressed as a percentage value between 0 and 100.</param>
-        /// <returns><c>true</c> if the generated random matrix falls within the success threshold boundary; otherwise, <c>false</c>.</returns>
-        public static bool RollSuccess(this float chancePercentage)
-        {
-            if (chancePercentage <= 0f) return false;
-            if (chancePercentage >= 100f) return true;
-
-            // Leverage our core thread-isolated high-performance double generator map
-            return (NextDouble() * 100.0) <= chancePercentage;
-        }
+        public static float Range(float min, float max) => (float)(ThreadRandom.NextDouble() * (max - min) + min);
     }
 }

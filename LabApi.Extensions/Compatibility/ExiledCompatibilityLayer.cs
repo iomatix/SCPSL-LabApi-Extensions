@@ -10,7 +10,7 @@
 
     /// <summary>
     /// Advanced cross-platform compatibility engine that bridges legacy EXILED configurations 
-    /// with the LabAPI architecture using native OS reparse points or runtime mirroring fail-safes.
+    /// with the LabAPI architecture using native OS directory junctions or runtime mirroring fallbacks.
     /// </summary>
     public static class ExiledCompatibilityLayer
     {
@@ -18,11 +18,13 @@
         private const string LogTag = nameof(ExiledCompatibilityLayer);
 
         /// <summary>
-        /// Executes the synchronization fallback to bridge directories and load missing configurations.
+        /// Executes the synchronization fallback to bridge directories and load missing configurations safely.
         /// </summary>
         public static void ExecuteFallback(Plugin plugin)
         {
-            if (plugin is null) return;
+            // FIX: Unified null-checking standard (== null instead of is null).
+            if (plugin == null)
+                return;
 
             Logger.Warn(LogTag, "LoadConfigs was bypassed by the native lifecycle. Deploying dynamic cross-framework routing matrix.");
 
@@ -60,7 +62,7 @@
                 string baseExiledConfigTree = Path.Combine(baseAppData, "EXILED", "Configs", activeServerPort);
                 string targetExiledPath = Directory.Exists(baseExiledConfigTree) ? exiledPortSpecificPath : exiledGlobalPluginsPath;
 
-                // 5. Reparse Point Shield: If link already deployed by OS, exit thread immediately
+                // 5. Reparse Point Shield: If link already deployed by OS, exit immediately
                 if (Directory.Exists(targetExiledPath) && IsReparsePoint(targetExiledPath))
                 {
                     return;
@@ -82,7 +84,7 @@
                     Directory.CreateDirectory(parentDir);
                 }
 
-                // 7. Execution Loop: Attempt to link environments natively via OS kernel
+                // 7. Execution: Attempt to link environments natively via OS kernel
                 if (TryCreateOSLink(targetExiledPath, labApiConfigDir))
                 {
                     Logger.Info(LogTag, $"Seamless cross-framework link deployed. [EXILED Proxy]: {targetExiledPath} ===> [LabAPI Workspace]: {labApiConfigDir}");
@@ -105,9 +107,11 @@
         {
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+            // FIX: Bypassed heavy shell (/bin/bash) execution on Linux. Spawns 'ln' directly which is faster and safer.
+            // Windows still requires cmd.exe because 'mklink' is an internal shell command.
             ProcessStartInfo psi = isWindows
                 ? new ProcessStartInfo("cmd.exe", $"/c mklink /J \"{linkPath}\" \"{targetPath}\"")
-                : new ProcessStartInfo("/bin/bash", $"-c \"ln -s '{targetPath}' '{linkPath}'\"");
+                : new ProcessStartInfo("ln", $"-s \"{targetPath}\" \"{linkPath}\"");
 
             psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
@@ -116,12 +120,14 @@
             try
             {
                 using Process process = Process.Start(psi);
-                if (process is null) return false;
+                if (process == null)
+                    return false;
 
                 // Thread-safety Guard: Enforce sub-process execution timeout boundaries to mitigate permanent I/O locks
                 if (!process.WaitForExit(ProcessTimeoutMilliseconds))
                 {
                     process.Kill();
+                    process.WaitForExit(); // FIX: Prevent zombie processes on Linux by safely resolving the killed process.
                     return false;
                 }
 
@@ -137,6 +143,15 @@
         {
             try
             {
+                // FIX: Added guard check to prevent DirectoryNotFoundException during cold boot sweeps.
+                if (!Directory.Exists(sourceFolder))
+                    return;
+
+                if (!Directory.Exists(destinationFolder))
+                {
+                    Directory.CreateDirectory(destinationFolder);
+                }
+
                 // Performance Optimization: Replaced GetFiles with EnumerateFiles to stream directory indices without allocating arrays
                 foreach (string file in Directory.EnumerateFiles(sourceFolder, "*.yml"))
                 {
@@ -158,7 +173,9 @@
         {
             try
             {
-                return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+                // FIX: Optimized directory check to use robust DirectoryInfo attributes.
+                var info = new DirectoryInfo(path);
+                return (info.Attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
             }
             catch
             {

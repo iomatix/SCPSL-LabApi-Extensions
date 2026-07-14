@@ -8,7 +8,7 @@ namespace LabApi.Extensions
     /// <summary>
     /// Represents a single step in an action chain: either a callback or a delay.
     /// </summary>
-    internal struct ChainNode<T>
+    internal readonly struct ChainNode<T>
     {
         public Action<T> Callback { get; }
         public float DelayDuration { get; }
@@ -16,7 +16,7 @@ namespace LabApi.Extensions
 
         public ChainNode(Action<T> callback)
         {
-            Callback = callback;
+            Callback = callback ?? throw new ArgumentNullException(nameof(callback));
             DelayDuration = 0f;
             IsDelay = false;
         }
@@ -71,34 +71,45 @@ namespace LabApi.Extensions
         /// <param name="coroutineTag">Optional tag for managing the coroutine.</param>
         public CoroutineHandle Run(string coroutineTag = null)
         {
-            var handle = Timing.RunCoroutine(ExecutePipelineRoutine(), "LabApi.Extensions-ActionChain");
-
-            if (!string.IsNullOrEmpty(coroutineTag))
-                handle.Tag = coroutineTag;
-
-            return handle;
+            // FIX: Register the tag directly in RunCoroutine so MEC indexes it correctly.
+            // This prevents issues where Timing.KillCoroutines(tag) fails to find this coroutine.
+            return !string.IsNullOrEmpty(coroutineTag)
+                ? Timing.RunCoroutine(ExecutePipelineRoutine(), coroutineTag)
+                : Timing.RunCoroutine(ExecutePipelineRoutine());
         }
 
         private IEnumerator<float> ExecutePipelineRoutine()
         {
             foreach (var node in _nodes)
             {
-                // Stop if the target is no longer valid.
-                if (_target is Player p && !p.IsReady)
-                    yield break;
-
-                if (_target is null)
+                // FIX: Verify if the target is still valid in the Unity/LabApi context.
+                if (!IsTargetValid())
                     yield break;
 
                 if (node.IsDelay)
                 {
-                    yield return Timing.WaitForSeconds(node.DelayDuration);
+                    // OPTIMIZATION: Yielding a direct float is the most efficient way to delay in MEC.
+                    yield return node.DelayDuration;
                 }
                 else
                 {
                     node.Callback?.Invoke(_target);
                 }
             }
+        }
+
+        /// <summary>
+        /// Performs an advanced state validation of the target object.
+        /// </summary>
+        private bool IsTargetValid()
+        {
+            if (_target is Player player)
+                return player.IsReady;
+
+            if (_target is UnityEngine.Object unityObject)
+                return unityObject != null;
+
+            return _target != null;
         }
     }
 

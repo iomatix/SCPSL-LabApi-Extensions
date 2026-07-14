@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace LabApi.Extensions.Misc
 {
@@ -15,10 +14,11 @@ namespace LabApi.Extensions.Misc
     }
 
     /// <summary>
-    /// Immutable payload container holding the execution metrics of a smart string interpretation sequence.
+    /// Immutable result container holding the execution metrics of a string interpretation sequence.
+    /// Implemented as a readonly struct to prevent heap allocations during parsing.
     /// </summary>
     /// <typeparam name="T">The target structural enum restriction type.</typeparam>
-    public sealed class InterpretationResult<T> where T : struct, Enum
+    public readonly struct InterpretationResult<T> where T : struct, Enum
     {
         /// <summary>
         /// Gets the final resolution status of the execution pipeline.
@@ -44,40 +44,76 @@ namespace LabApi.Extensions.Misc
     }
 
     /// <summary>
-    /// Advanced heuristic parsing engine delivering fuzzy string resolution, acronym mapping, and typo-tolerance layers.
+    /// High-performance parsing engine delivering fuzzy string resolution, acronym mapping, and typo-tolerance layers.
+    /// Uses static generic caching to completely eliminate runtime reflection overhead.
     /// </summary>
     public static class StringInterpretationExtensions
     {
         /// <summary>
-        /// Fluently interprets a raw string input and resolves it against an enum layout using multi-stage heuristic cascades.
+        /// Static generic cache to store enum properties once per type, avoiding heavy runtime reflection and allocations.
         /// </summary>
-        /// <typeparam name="T">The target value mapping constraint conforming to standard system enums.</typeparam>
-        /// <param name="input">The raw text block harvested from the command arguments list.</param>
-        /// <returns>A comprehensive result mapping containing match values or closest operational suggestion listings.</returns>
+        private static class EnumCache<T> where T : struct, Enum
+        {
+            public static readonly string[] Names = Enum.GetNames(typeof(T));
+            public static readonly T[] Values = (T[])Enum.GetValues(typeof(T));
+            public static readonly string[] LowerNames = Array.ConvertAll(Names, static n => n.ToLowerInvariant());
+            public static readonly string[] Acronyms = Array.ConvertAll(Names, static n =>
+            {
+                int cap = 0;
+                for (int i = 0; i < n.Length; i++)
+                {
+                    if (char.IsUpper(n[i]))
+                        cap++;
+                }
+
+                if (cap == 0)
+                    return string.Empty;
+
+                char[] chars = new char[cap];
+                int idx = 0;
+                for (int i = 0; i < n.Length; i++)
+                {
+                    if (char.IsUpper(n[i]))
+                    {
+                        chars[idx++] = char.ToLowerInvariant(n[i]);
+                    }
+                }
+                return new string(chars);
+            });
+        }
+
+        /// <summary>
+        /// Interprets a raw string input and resolves it against an enum layout using multi-stage heuristic cascades.
+        /// </summary>
         public static InterpretationResult<T> InterpretEnum<T>(this string input) where T : struct, Enum
         {
             if (string.IsNullOrWhiteSpace(input))
                 return new InterpretationResult<T>(InterpretationStatus.NoMatchFound, default, null);
 
             string cleanInput = input.Trim().ToLowerInvariant();
-            string[] enumNames = Enum.GetNames(typeof(T));
-            T[] enumValues = (T[])Enum.GetValues(typeof(T));
+
+            // Retrieve cached enum representations with 0 reflection overhead
+            string[] enumNames = EnumCache<T>.Names;
+            string[] lowerNames = EnumCache<T>.LowerNames;
+            T[] enumValues = EnumCache<T>.Values;
+            string[] acronyms = EnumCache<T>.Acronyms;
 
             // STAGE 1: Exact / Case-Insensitive String Verification
             for (int i = 0; i < enumNames.Length; i++)
             {
-                if (enumNames[i].Equals(cleanInput, StringComparison.OrdinalIgnoreCase))
+                if (lowerNames[i] == cleanInput)
                 {
                     return new InterpretationResult<T>(InterpretationStatus.DefinitiveMatch, enumValues[i], null);
                 }
             }
 
-            var candidatesIndexes = new List<int>();
+            // Pre-size list to avoid resize allocations on hot path
+            var candidatesIndexes = new List<int>(enumNames.Length);
 
             // STAGE 2: Substring Inversion & Structural Acronym Discovery Loop
             for (int i = 0; i < enumNames.Length; i++)
             {
-                string nameLower = enumNames[i].ToLowerInvariant();
+                string nameLower = lowerNames[i];
 
                 // Direct or inverted containment detection (e.g., "Light" matches "LightContainment")
                 if (nameLower.Contains(cleanInput) || cleanInput.Contains(nameLower))
@@ -86,8 +122,8 @@ namespace LabApi.Extensions.Misc
                     continue;
                 }
 
-                // Dynamic uppercase acronym signature matching (e.g., "LightContainment" -> "lc" or "lcz" contextual expansion)
-                string acronym = new string(enumNames[i].Where(char.IsUpper).ToArray()).ToLowerInvariant();
+                // Dynamic uppercase acronym signature matching
+                string acronym = acronyms[i];
                 if (acronym == cleanInput || (acronym + "z") == cleanInput || acronym == (cleanInput + "z"))
                 {
                     candidatesIndexes.Add(i);
@@ -104,38 +140,46 @@ namespace LabApi.Extensions.Misc
             // STAGE 3: Typo-Tolerance Matrix via Levenshtein Distance algorithms (Fallback layer)
             if (candidatesIndexes.Count == 0)
             {
-                var distanceScores = new List<(int index, int distance)>();
+                int minDistance = int.MaxValue;
+
+                // FIX: Single-pass loop to find the lowest distance and collect candidates with absolutely 0 LINQ allocations.
                 for (int i = 0; i < enumNames.Length; i++)
                 {
-                    int distance = StringExtensions.ComputeLevenshteinDistance(cleanInput, enumNames[i].ToLowerInvariant());
+                    int distance = StringExtensions.ComputeLevenshteinDistance(cleanInput, lowerNames[i]);
+
                     // Allow soft variations (maximum of 3 typographic mutations allowed based on lengths)
                     if (distance <= 3 && distance < enumNames[i].Length - 2)
                     {
-                        distanceScores.Add((i, distance));
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            candidatesIndexes.Clear();
+                            candidatesIndexes.Add(i);
+                        }
+                        else if (distance == minDistance)
+                        {
+                            candidatesIndexes.Add(i);
+                        }
                     }
                 }
+            }
 
-                if (distanceScores.Count > 0)
+            // FIX: Removed redundant candidatesIndexes.Distinct().ToList() allocations. 
+            // The logic guarantees uniqueness natively as 'continue' prevents double registration.
+            int matchCount = candidatesIndexes.Count;
+
+            if (matchCount == 1)
+            {
+                return new InterpretationResult<T>(InterpretationStatus.DefinitiveMatch, enumValues[candidatesIndexes[0]], null);
+            }
+
+            if (matchCount > 1)
+            {
+                string[] suggestionStrings = new string[matchCount];
+                for (int i = 0; i < matchCount; i++)
                 {
-                    int minDistance = distanceScores.Min(s => s.distance);
-                    foreach (var score in distanceScores.Where(s => s.distance == minDistance))
-                    {
-                        candidatesIndexes.Add(score.index);
-                    }
+                    suggestionStrings[i] = enumNames[candidatesIndexes[i]];
                 }
-            }
-
-            // Clean down duplicate registry hits cleanly
-            var distinctMatches = candidatesIndexes.Distinct().ToList();
-
-            if (distinctMatches.Count == 1)
-            {
-                return new InterpretationResult<T>(InterpretationStatus.DefinitiveMatch, enumValues[distinctMatches[0]], null);
-            }
-
-            if (distinctMatches.Count > 1)
-            {
-                string[] suggestionStrings = distinctMatches.Select(idx => enumNames[idx]).ToArray();
                 return new InterpretationResult<T>(InterpretationStatus.Ambiguous, default, suggestionStrings);
             }
 

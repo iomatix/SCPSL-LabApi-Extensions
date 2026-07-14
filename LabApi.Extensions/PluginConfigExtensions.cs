@@ -6,7 +6,7 @@ using System;
 namespace LabApi.Extensions
 {
     /// <summary>
-    /// Helpers for loading and validating plugin sub‑config files.
+    /// Highly optimized utility extensions for loading and validating plugin sub‑config files safely.
     /// </summary>
     public static class PluginConfigExtensions
     {
@@ -27,18 +27,20 @@ namespace LabApi.Extensions
             where TMainConfig : LabApiConfig, new()
             where TSubConfig : class, new()
         {
-            if (plugin is null || string.IsNullOrEmpty(fileName))
+            // FIX: Maintained codebase-wide unified null-checking standard ('== null' instead of 'is null').
+            if (plugin == null || string.IsNullOrEmpty(fileName))
                 return new TSubConfig();
 
-            TSubConfig finalConfig;
-
-            if (plugin.TryLoadConfig(fileName, out TSubConfig loaded))
-                finalConfig = loaded ?? new TSubConfig();
-            else
+            // FIX: Simplified block structure. Attempt to load and fallback to new instantiation in one clean statement.
+            if (!plugin.TryLoadConfig(fileName, out TSubConfig finalConfig) || finalConfig == null)
+            {
                 finalConfig = new TSubConfig();
+            }
 
+            // Run optional schema verification or default values assignment.
             validationAction?.Invoke(finalConfig);
 
+            // Immediately save it back to make sure newly created files or validated/repaired fields are written to disk.
             plugin.TrySaveConfig(finalConfig, fileName);
 
             return finalConfig;

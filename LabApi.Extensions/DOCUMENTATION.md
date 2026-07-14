@@ -602,6 +602,18 @@ public static bool HasAttachment(AttachmentName attachmentName, params FirearmIt
 
 ## 📦 Class: HandlerExtensions
 
+### 🔹 `Register()`
+**Description:** Registers a single event handler with zero heap allocations.
+```csharp
+public static void Register(this CustomEventsHandler handler)
+```
+
+### 🔹 `Unregister()`
+**Description:** Unregisters a single event handler with zero heap allocations.
+```csharp
+public static void Unregister(this CustomEventsHandler handler)
+```
+
 ### 🔹 `RegisterAll()`
 **Description:** Registers multiple event handlers with zero heap allocations.
 ```csharp

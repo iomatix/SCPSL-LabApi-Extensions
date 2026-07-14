@@ -9,7 +9,37 @@ namespace LabApi.Extensions
     /// </summary>
     public static class HandlerExtensions
     {
-        #region Register
+        #region Single Register
+
+        /// <summary>
+        /// Registers a single event handler with zero heap allocations.
+        /// </summary>
+        public static void Register(this CustomEventsHandler handler)
+        {
+            if (handler != null)
+            {
+                CustomHandlersManager.RegisterEventsHandler(handler);
+            }
+        }
+
+        #endregion
+
+        #region Single Unregister
+
+        /// <summary>
+        /// Unregisters a single event handler with zero heap allocations.
+        /// </summary>
+        public static void Unregister(this CustomEventsHandler handler)
+        {
+            if (handler != null)
+            {
+                CustomHandlersManager.UnregisterEventsHandler(handler);
+            }
+        }
+
+        #endregion
+
+        #region Register All
 
         /// <summary>
         /// Registers multiple event handlers with zero heap allocations.
@@ -42,7 +72,7 @@ namespace LabApi.Extensions
 
         #endregion
 
-        #region Unregister
+        #region Unregister All
 
         /// <summary>
         /// Unregisters multiple event handlers with zero heap allocations.

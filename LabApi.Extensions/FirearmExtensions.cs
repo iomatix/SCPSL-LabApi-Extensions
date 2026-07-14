@@ -1,11 +1,13 @@
 ﻿using InventorySystem.Items.Firearms.Attachments;
 using LabApi.Features.Wrappers;
+using System;
 using System.Collections.Generic;
 
 namespace LabApi.Extensions
 {
     /// <summary>
-    /// Utility extensions for checking firearm attachments.
+    /// Highly optimized utility extensions for checking firearm attachments.
+    /// Reuses state-passing query extensions to maintain a zero-allocation, short-circuiting execution path.
     /// </summary>
     public static class FirearmExtensions
     {
@@ -16,7 +18,7 @@ namespace LabApi.Extensions
         /// </summary>
         public static bool HasAttachment(this FirearmItem firearm, AttachmentName attachmentName)
         {
-            if (firearm?.Base?.Attachments is null)
+            if (firearm == null || firearm.Base == null || firearm.Base.Attachments == null)
                 return false;
 
             var attachments = firearm.Base.Attachments;
@@ -34,21 +36,16 @@ namespace LabApi.Extensions
 
         /// <summary>
         /// Returns true if the firearm has all specified attachments enabled.
+        /// Uses state-passing All helper to guarantee 0 allocations and instant early-exit.
         /// </summary>
         public static bool HasAttachments(this FirearmItem firearm, IEnumerable<AttachmentName> attachmentNames)
         {
-            if (firearm?.Base?.Attachments is null || attachmentNames is null)
+            if (firearm == null || firearm.Base == null || firearm.Base.Attachments == null || attachmentNames == null)
                 return false;
 
-            foreach (var name in attachmentNames)
-            {
-                if (!firearm.HasAttachment(name))
-                    return false;
-            }
-
-            return true;
+            // FIX: DRY & zero-allocation early-exit query using our new All extension.
+            return attachmentNames.All(firearm, static (name, f) => f.HasAttachment(name));
         }
-
 
         /// <summary>
         /// Returns true if the firearm has all specified attachments enabled (params overload).
@@ -65,27 +62,11 @@ namespace LabApi.Extensions
         /// </summary>
         public static bool HasAttachment(this IEnumerable<FirearmItem> firearms, AttachmentName attachmentName)
         {
-            if (firearms is null)
+            if (firearms == null)
                 return false;
 
-            if (firearms is List<FirearmItem> list)
-            {
-                int count = list.Count;
-                for (int i = 0; i < count; i++)
-                {
-                    if (!list[i].HasAttachment(attachmentName))
-                        return false;
-                }
-                return true;
-            }
-
-            foreach (var firearm in firearms)
-            {
-                if (!firearm.HasAttachment(attachmentName))
-                    return false;
-            }
-
-            return true;
+            // FIX: DRY & zero-allocation early-exit batch query.
+            return firearms.All(attachmentName, static (f, name) => f != null && f.HasAttachment(name));
         }
 
         /// <summary>

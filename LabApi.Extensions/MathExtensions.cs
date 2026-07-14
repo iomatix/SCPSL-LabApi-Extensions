@@ -212,18 +212,7 @@ namespace LabApi.Extensions
 
         #endregion
 
-        #region Probability & Smart Randoms
-
-        /// <summary>
-        /// Rolls a percentage-based chance (0% to 100%). Returns true if the roll succeeds.
-        /// </summary>
-        public static bool RollChance(this float percentageChance)
-        {
-            if (percentageChance <= 0f) return false;
-            if (percentageChance >= 100f) return true;
-
-            return SafeRandom.Range(0f, 100f) <= percentageChance;
-        }
+        #region Thread-Safe Random & Chance Extensions
 
         /// <summary>
         /// Rolls an integer percentage-based chance (0% to 100%). Returns true if the roll succeeds.
@@ -237,7 +226,39 @@ namespace LabApi.Extensions
         }
 
         /// <summary>
-        /// Rolls a normalized-based chance (0.0 to 1.0). Returns true if the roll succeeds.
+        /// Rolls a float percentage-based chance (0.0% to 100.0%). Returns true if the roll succeeds.
+        /// </summary>
+        public static bool RollChance(this float percentageChance)
+        {
+            if (percentageChance <= 0f) return false;
+            if (percentageChance >= 100f) return true;
+
+            return (SafeRandom.NextDouble() * 100.0) < percentageChance;
+        }
+
+        /// <summary>
+        /// Rolls a double percentage-based chance (0.0% to 100.0%). Returns true if the roll succeeds.
+        /// </summary>
+        public static bool RollChance(this double percentageChance)
+        {
+            if (percentageChance <= 0.0) return false;
+            if (percentageChance >= 100.0) return true;
+
+            return (SafeRandom.NextDouble() * 100.0) < percentageChance;
+        }
+
+        /// <summary>
+        /// Rolls an integer normalized-based chance (0 or 1). Returns true if the roll succeeds (>= 1).
+        /// </summary>
+        public static bool RollChanceNormalized(this int normalizedChance)
+        {
+            // An integer normalized chance can logically only be 0 (0%) or >= 1 (100%).
+            // Executes instantly with 0 overhead.
+            return normalizedChance >= 1;
+        }
+
+        /// <summary>
+        /// Rolls a float normalized-based chance (0.0 to 1.0). Returns true if the roll succeeds.
         /// </summary>
         public static bool RollChanceNormalized(this float normalizedChance)
         {
@@ -245,6 +266,17 @@ namespace LabApi.Extensions
             if (normalizedChance >= 1f) return true;
 
             return SafeRandom.Range(0f, 1f) <= normalizedChance;
+        }
+
+        /// <summary>
+        /// Rolls a double normalized-based chance (0.0 to 1.0). Returns true if the roll succeeds.
+        /// </summary>
+        public static bool RollChanceNormalized(this double normalizedChance)
+        {
+            if (normalizedChance <= 0.0) return false;
+            if (normalizedChance >= 1.0) return true;
+
+            return SafeRandom.NextDouble() <= normalizedChance;
         }
 
         /// <summary>

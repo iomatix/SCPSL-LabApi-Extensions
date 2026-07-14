@@ -5,112 +5,122 @@ using UnityEngine;
 namespace LabApi.Extensions.Escape
 {
     /// <summary>
-    /// Represents a generalized, highly configurable architectural template for spatial evacuation, 
-    /// teleportation sequences, and timed server-side gameplay progression scenarios.
+    /// Configuration template representing player escape conditions, teleportations, and visual progression scenarios.
     /// </summary>
     public class EscapeScenario
     {
         #region Core Identification
+
         /// <summary>
-        /// Gets or sets the unique structural identity or display label assigned to this execution scenario.
+        /// Gets or sets the name or display label of this scenario.
         /// </summary>
         public string Name { get; set; } = "Default Evacuation";
+
         #endregion
 
-        #region Spatial & Physics Boundaries
+        #region Spatial Boundaries
+
         /// <summary>
-        /// Gets or sets the global world-space coordinate vector defining the center anchor of the escape verification perimeter.
+        /// Gets or sets the world position representing the center of the escape area.
         /// </summary>
         public Vector3 EscapeZone { get; set; } = Vector3.zero;
 
         /// <summary>
-        /// Gets or sets the maximum linear radial boundary threshold constraint in meters allowed to pass proximity verification.
+        /// Gets or sets the escape radius in meters.
         /// </summary>
         public float EscapeRadius { get; set; } = 5f;
 
         /// <summary>
-        /// Gets or sets the target destination coordinate vector where eligible entities are transferred post-validation.
+        /// Gets or sets the teleport target position after escaping.
         /// </summary>
         public Vector3 TeleportPosition { get; set; } = Vector3.zero;
+
         #endregion
 
-        #region Automated UI/UX Telemetry
+        #region UI/UX Notifications
+
         /// <summary>
-        /// Gets or sets the localized notification Hint text sequence broadcast to the entire server pool when the timeline initiates.
+        /// Gets or sets the message broadcast to all players when the scenario starts.
         /// </summary>
         public string InitialHint { get; set; }
 
         /// <summary>
-        /// Gets or sets the visual display lifetime duration in seconds allocated for the initial broadcast interface layer.
+        /// Gets or sets the duration of the initial broadcast in seconds.
         /// </summary>
         public float InitialHintDuration { get; set; } = 6f;
 
         /// <summary>
-        /// Gets or sets the direct text notification string transmitted exclusively to an individual entity upon successful scenario verification.
+        /// Gets or sets the message shown to the escaping player upon successful escape.
         /// </summary>
         public string SuccessHint { get; set; }
+
         #endregion
 
-        #region Timeline Chronology Delays
+        #region Timeline Delays
+
         /// <summary>
-        /// Gets or sets the temporal operational standby delay in seconds executed immediately after sequence activation.
+        /// Gets or sets the delay in seconds before the escape process starts.
         /// </summary>
         public float InitialDelay { get; set; } = 0f;
 
         /// <summary>
-        /// Gets or sets the secondary simulation processing delay in seconds spent during structural gameplay transition steps.
+        /// Gets or sets the delay in seconds before checking for escaping players.
         /// </summary>
         public float ProcessingDelay { get; set; } = 0f;
 
         /// <summary>
-        /// Gets or sets the brief terminal resolution delay in seconds applied directly before role transformation commits.
+        /// Gets or sets the delay in seconds before changing the player's role to Spectator.
         /// </summary>
         public float FinalDelay { get; set; } = 0.5f;
+
         #endregion
 
-        #region Sensory Amortization Configuration
+        #region Sensory Effects
+
         /// <summary>
-        /// Gets or sets the duration coefficient in seconds for the post-escape screen flash trauma overlay.
+        /// Gets or sets the screen flash duration in seconds.
         /// </summary>
         public float FlashDuration { get; set; } = 1.75f;
 
         /// <summary>
-        /// Gets or sets the duration coefficient in seconds for the post-escape structural blindness status block.
+        /// Gets or sets the blindness duration in seconds.
         /// </summary>
         public float BlindDuration { get; set; } = 0f;
 
         /// <summary>
-        /// Gets or sets the duration coefficient in seconds for the post-escape visual lens blur distortion layer.
+        /// Gets or sets the blur duration in seconds.
         /// </summary>
         public float BlurDuration { get; set; } = 0f;
 
         /// <summary>
-        /// Gets or sets the duration coefficient in seconds for the post-escape environment auditory dampening filter.
+        /// Gets or sets the deafen duration in seconds.
         /// </summary>
         public float DeafenDuration { get; set; } = 3.75f;
+
         #endregion
 
-        #region Lifecycle Event Interceptors
+        #region Lifecycle Events
+
         /// <summary>
-        /// Occurs instantly when the master execution pipeline initializes the scenario tracking tree.
+        /// Occurs when the escape scenario starts.
         /// </summary>
         public Action OnSequenceStarted { get; set; }
 
         /// <summary>
-        /// Occurs immediately after the initial standby delay threshold expires, separating arrival steps from processing sweeps.
+        /// Occurs when the standby delay expires.
         /// </summary>
         public Action OnSequenceProcessing { get; set; }
 
         /// <summary>
-        /// Occurs dynamically whenever an individual player entity successfully passes position, alignment, and structural life-state audits.
-        /// Ideal for custom external data caching, point allocations, or inventory tracking mutations.
+        /// Occurs when a player successfully passes the escape criteria.
         /// </summary>
         public Action<Player> OnPlayerValidated { get; set; }
 
         /// <summary>
-        /// Occurs upon complete finalization of the sequence loop iteration sweep.
+        /// Occurs when the escape scenario is completed.
         /// </summary>
         public Action OnSequenceFinalized { get; set; }
+
         #endregion
     }
 }
